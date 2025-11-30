@@ -1,1 +1,3 @@
-gcc main.c -o game.exe -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+pip install -r requirements.txt
+python3 main.py
+python main.py
