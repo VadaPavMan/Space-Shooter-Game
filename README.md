@@ -1,11 +1,11 @@
 # 🚀 Space Shooter Game Using Arcade Lib
 
-![logo](assests/arcade.webp)
+![logo](assets/arcade.webp)
 
 This is a fun and exciting 2D Space Shooter Game developed using the Arcade library in Python. Players control a spaceship, navigating through space while dodging obstacles and shooting enemies to score points.
 
 
-![imgC](assests/image.png)
+![imgC](assets/image.png)
 
 
 # Features:
