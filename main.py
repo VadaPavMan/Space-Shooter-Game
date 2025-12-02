@@ -1,55 +1,59 @@
 import arcade
 import random
 import particles
+import __hero__
+import shoot
 
 WINDOW_HEIGHT = 720;
 WINDOW_WIDTH = 1280;
 WINDOW_TITLE = "Space Shooter";
 
+
 class Gameview(arcade.Window):
     
     def __init__(self, width, height, title):
         super().__init__(width, height, title, False, True);
-        arcade.set_background_color(arcade.color.BLACK)
-        
+        self.background = arcade.Sprite("assets/background.png")
+        self.update_background_size(width, height)
         self.set_minimum_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.circle_x = width //2;  # Starting Position Of Ball (x,y);
-        self.circle_y = height //2;
-        self.circle_radius = 50;
-        self.circle_dx = 3; # Velocity in x direction
-        self.circle_dy = 3; # Velocity in y direction
-        
+        self.set_mouse_visible(False)
+        self.player = __hero__.Player(width, height)
         self.particles = []
+        self.bullets = []
         for _ in range(3):
             self.particles.append(particles.Particle(width, height))
+            
+    def update_background_size(self, width, height):
+        self.background.center_x = width //2
+        self.background.center_y = height //2
+        self.background.width = width
+        self.background.height = height
+        
     
     def on_draw(self):
         self.clear();
-        arcade.draw_circle_filled(self.circle_x, self.circle_y, self.circle_radius, arcade.color.AERO_BLUE)
+        arcade.draw_sprite(self.background)
+        
+        for bullet in self.bullets:
+            bullet.draw()
+        self.player.draw()
         for particle in self.particles:
             particle.draw()
-
+        
+    def on_resize(self, width, height):
+        super().on_resize(width, height)
+        self.update_background_size(width, height)
+            
     def on_update(self, delta_time):
+        self.player.update(self.width, self.height, delta_time)
         
-        self.circle_x += self.circle_dx;
-        self.circle_y += self.circle_dy;
-        
-        if self.circle_x + self.circle_radius > self.width: 
-            self.circle_dx = -abs(self.circle_dx)
-            self.circle_x = self.width - self.circle_radius;
+        for bullet in self.bullets:
+            bullet.update()
             
-        if self.circle_x - self.circle_radius < 0: 
-            self.circle_dx = abs(self.circle_dx)
-            self.circle_x = self.circle_radius;
-            
-        if self.circle_y + self.circle_radius > self.height: 
-            self.circle_dy = -abs(self.circle_dy)
-            self.circle_y = self.height - self.circle_radius;
-            
-        if self.circle_y - self.circle_radius < 0: 
-            self.circle_dy = abs(self.circle_dy)
-            self.circle_y = self.circle_radius;
-            
+        for i in range(len(self.bullets)-1, -1, -1):
+            if self.bullets[i].off_screen(self.width, self.height):
+                self.bullets.pop(i)
+                
         for particle in self.particles:
             particle.update()
             
@@ -58,6 +62,24 @@ class Gameview(arcade.Window):
                 self.particles.pop(i)
                 self.particles.append(particles.Particle(self.width, self.height))
     
+    def on_key_press(self, key, modifiers):
+        self.player.on_key_press(key, modifiers)
+        
+        
+    def on_key_release(self, key, modifiers):
+        self.player.on_key_release(key, modifiers)
+        
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.player.on_mouse_motion(x, y, dx, dy)
+        
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            if self.player.shoot():
+                bullet_x, bullet_y = self.player.get_bullet_spawn_position()
+                angle = self.player.get_aim_angle()
+                new_bullet = shoot.Bullet(angle, bullet_x, bullet_y)
+                self.bullets.append(new_bullet)
+        
         
 
 if __name__ == "__main__":
