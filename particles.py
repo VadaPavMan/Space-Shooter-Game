@@ -51,4 +51,4 @@ class Particle:
         return (self.x < -10 or self.x > screen_width + 10 or 
                 self.y < -10 or self.y > screen_height + 10)
             
-        
+
