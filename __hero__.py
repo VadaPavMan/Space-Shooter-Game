@@ -22,7 +22,8 @@ class Player():
         
         self.shoot_active = True
         self.shoot_timer = 0
-        self.shoot_cooldown = 0
+        self.shoot_cooldown = 0.2
+        self.mouse_held = False
         
     def draw(self):
         arcade.draw_sprite(self.player)
@@ -104,8 +105,14 @@ class Player():
         angle_deg = math.degrees(angle_rad)
         self.player._angle = angle_deg
         
+    def on_mouse_press(self):
+        self.mouse_held = True
+    
+    def on_mouse_release(self):
+        self.mouse_held = False
+        
     def shoot(self):
-        if self.shoot_active:
+        if self.shoot_active and self.mouse_held:
             self.shoot_active = False
             return True
         return False
