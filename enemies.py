@@ -5,21 +5,21 @@ import random
 class Enemies():
     
     def __init__(self, width, height):
-        self.radius = 0.15
-        self.enemy = arcade.Sprite("assets/plane.png", self.radius)
+        self.radius = 1.5
+        self.enemy = arcade.Sprite("assets/enemies_ship/enemy_crab.png", self.radius)
         self.start_edge = random.randint(0, 3)
         
-        if self.start_edge == 0:
+        if self.start_edge == 0:  # Top
             self.enemy.center_x = random.randint(0, width)
-            self.enemy.center_y = height + 300
-        elif self.start_edge == 1:
-            self.enemy.center_x = width + 300
+            self.enemy.center_y = height + 500
+        elif self.start_edge == 1:  # Right
+            self.enemy.center_x = width + 500
             self.enemy.center_y = random.randint(0, height)
-        elif self.start_edge == 2:
+        elif self.start_edge == 2:  # Bottom
             self.enemy.center_x = random.randint(0, width)
-            self.enemy.center_y = -300
-        elif self.start_edge == 3:
-            self.enemy.center_x = -300
+            self.enemy.center_y = -500
+        elif self.start_edge == 3:  # Left
+            self.enemy.center_x = -500
             self.enemy.center_y = random.randint(0, height)
         
         self.enemy.angle = 0
@@ -27,12 +27,22 @@ class Enemies():
         self.follow_distance = 200
         self.separation_distance = 80  
         
-        self.enemy_active = True
+        self.just_spawned = True
+        self.spawn_time = 0
+        self.spawn_duration = 2.0  
         
         self.max_health = 4
         self.current_health = self.max_health
         
     def update(self, delta_time, pos_x, pos_y, width, height, other_enemies):
+        if self.just_spawned:
+            self.spawn_time += delta_time
+            if self.spawn_time >= self.spawn_duration:
+                self.just_spawned = False
+            speed_multiplier = 0.4  
+        else:
+            speed_multiplier = 1.0  
+        
         diff_x = pos_x - self.enemy.center_x
         diff_y = pos_y - self.enemy.center_y
         distance = math.sqrt(diff_x * diff_x + diff_y * diff_y)
@@ -50,12 +60,14 @@ class Enemies():
         direction_x = diff_x / distance
         direction_y = diff_y / distance
         
+        actual_speed = self.speed * speed_multiplier
+        
         if distance > self.follow_distance:
-            move_x = direction_x * self.speed
-            move_y = direction_y * self.speed
+            move_x = direction_x * actual_speed
+            move_y = direction_y * actual_speed
         elif distance < self.follow_distance - 50:
-            move_x = -direction_x * self.speed
-            move_y = -direction_y * self.speed
+            move_x = -direction_x * actual_speed
+            move_y = -direction_y * actual_speed
         
         separation_x = 0
         separation_y = 0
@@ -77,11 +89,9 @@ class Enemies():
         move_x += separation_x
         move_y += separation_y
         
-        # Movement
         self.enemy.center_x += move_x
         self.enemy.center_y += move_y
         
-        # In_Screen
         if self.enemy.center_x <= 20:
             self.enemy.center_x = 20
         elif self.enemy.center_x >= width - 20:
@@ -118,7 +128,7 @@ class Enemies():
         bottom = cy - bar_height / 2
         top = cy + bar_height / 2
         
-        arcade.draw_lrbt_rectangle_filled(left, right, bottom,top, arcade.color.RED)
+        arcade.draw_lrbt_rectangle_filled(left, right, bottom, top, arcade.color.RED)
         
         green_right = left + current_bar_width
         arcade.draw_lrbt_rectangle_filled(left, green_right, bottom, top, arcade.color.GREEN)

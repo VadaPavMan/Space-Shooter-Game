@@ -6,7 +6,11 @@ class Player():
     
     def __init__(self, width, height):
         self.radius = 1.5
-        self.player = arcade.Sprite("assets/hero_spaceship/ship_full.png", self.radius)
+        self.full_health_texture = arcade.load_texture("assets/hero_spaceship/ship_full.png")
+        self.health_60_texture = arcade.load_texture("assets/hero_spaceship/ship_less_damage.png")
+        self.health_30_texture = arcade.load_texture("assets/hero_spaceship/ship_damage.png")
+        self.health_10_texture = arcade.load_texture("assets/hero_spaceship/ship_very_damage.png")
+        self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
         self.player.center_x = width // 2
         self.player.center_y = height // 2
         self.player._angle = 180
@@ -22,16 +26,27 @@ class Player():
         
         self.shoot_active = True
         self.shoot_timer = 0
-        self.shoot_cooldown = 0.2
-        self.mouse_held = False
+        self.shoot_cooldown = 0.2  
+        self.mouse_held = False  
+        
+        # Health system
+        self.max_health = 100
+        self.current_health = self.max_health
+        self.invincible = False  
+        self.invincible_timer = 0
+        self.invincible_duration = 1.0  
         
     def draw(self):
-        arcade.draw_sprite(self.player)
+        if self.invincible:
+            if int(self.invincible_timer * 10) % 2 == 0:
+                arcade.draw_sprite(self.player)
+        else:
+            arcade.draw_sprite(self.player)
         
-    def update(self,width, height, delta_time):
+    def update(self, width, height, delta_time):
         
         target_speed = self.PLAYERSPEED_BOOST if self.space_pressed else self.PLAYERSPEED
-        self.current_speed += (target_speed - self.current_speed)*0.1
+        self.current_speed += (target_speed - self.current_speed) * 0.1
         self.player.change_x = 0
         self.player.change_y = 0
         
@@ -52,28 +67,47 @@ class Player():
         if self.up_pressed and self.down_pressed:
             self.player.change_y = 0
         
-            
         # Off Screen
         if self.player.center_x > (width - 20):
             self.player.center_x = width - 20
         elif self.player.center_x < 20:
             self.player.center_x = 20
-        elif self.player.center_y > (height- 20):
+        elif self.player.center_y > (height - 20):
             self.player.center_y = height - 20
         elif self.player.center_y < 30:
             self.player.center_y = 30
         
-        # SHooting Cooldown    
+        # SHooting Cooldown
         if not self.shoot_active:
             self.shoot_timer += delta_time
             if self.shoot_timer >= self.shoot_cooldown:
                 self.shoot_active = True
                 self.shoot_timer = 0
         
-        self.player.update()
-    
-    def on_key_press(self, key, modifers):
+        # Invincibility
+        if self.invincible:
+            self.invincible_timer += delta_time
+            if self.invincible_timer >= self.invincible_duration:
+                self.invincible = False
+                self.invincible_timer = 0
         
+        self.player.update()
+        
+    def update_texture(self):
+        
+        new_texture = self.full_health_texture
+        if self.current_health <= 10:
+            new_texture = self.health_10_texture
+        elif self.current_health <= 30:
+            new_texture = self.health_30_texture
+        elif self.current_health <= 60:
+            new_texture = self.health_60_texture
+            
+        if self.player.texture != new_texture:
+            self.player.texture = new_texture
+        
+    
+    def on_key_press(self, key, modifiers):
         if key == arcade.key.UP or key == arcade.key.W:
             self.up_pressed = True
         elif key == arcade.key.DOWN or key == arcade.key.S:
@@ -85,8 +119,7 @@ class Player():
         elif key == arcade.key.SPACE:
             self.space_pressed = True
             
-    def on_key_release(self, key, modifers):
-        
+    def on_key_release(self, key, modifiers):
         if key == arcade.key.UP or key == arcade.key.W:
             self.up_pressed = False
         elif key == arcade.key.DOWN or key == arcade.key.S:
@@ -101,10 +134,10 @@ class Player():
     def on_mouse_motion(self, x, y, dx, dy):
         dx = x - self.player.center_x
         dy = y - self.player.center_y 
-        angle_rad = (math.atan2(dx, dy))
+        angle_rad = math.atan2(dx, dy)
         angle_deg = math.degrees(angle_rad)
         self.player._angle = angle_deg
-        
+    
     def on_mouse_press(self):
         self.mouse_held = True
     
@@ -125,3 +158,23 @@ class Player():
     
     def get_angle(self):
         return self.player._angle
+    
+    def take_damage(self, damage_amount):
+        if self.invincible:
+            return False  
+        
+        self.current_health -= damage_amount
+        self.invincible = True  
+        self.invincible_timer = 0
+        
+        if self.current_health < 0:
+            self.current_health = 0
+        
+        self.update_texture()
+        return self.current_health <= 0  
+    
+    def is_alive(self):
+        return self.current_health > 0
+    
+    def get_health(self):
+        return self.current_health, self.max_health
