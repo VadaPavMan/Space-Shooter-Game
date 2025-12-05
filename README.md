@@ -8,8 +8,8 @@ This is a fun and exciting 2D Space Shooter Game developed using the Arcade libr
 ![imgC](assets/image.png)
 
 
-# Prototype:
-![prototype](assets/prototype.png)
+# Preview:
+![preview](assets/prototype.png)
 
 # Features:
 - Smooth spaceship controls
