@@ -1,4 +1,5 @@
 import arcade
+from resources import resource_path
 import random
 import math
 
@@ -6,10 +7,11 @@ class Player():
     
     def __init__(self, width, height):
         self.radius = 1.5
-        self.full_health_texture = arcade.load_texture("assets/hero_spaceship/ship_full.png")
-        self.health_60_texture = arcade.load_texture("assets/hero_spaceship/ship_less_damage.png")
-        self.health_30_texture = arcade.load_texture("assets/hero_spaceship/ship_damage.png")
-        self.health_10_texture = arcade.load_texture("assets/hero_spaceship/ship_very_damage.png")
+        self.full_health_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_full.png"))
+        self.health_60_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_less_damage.png"))
+        self.health_30_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_damage.png"))
+        self.health_10_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_very_damage.png"))
+
         self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
         self.player.center_x = width // 2
         self.player.center_y = height // 2

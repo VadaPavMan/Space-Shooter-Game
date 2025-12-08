@@ -1,4 +1,5 @@
 import arcade
+from resources import resource_path  
 import random
 import particles
 import __hero__
@@ -15,7 +16,7 @@ class Gameview(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, False, True)
         
-        self.background = arcade.Sprite("assets/background.png")
+        self.background = arcade.Sprite(resource_path("assets/background.png"))
         self.update_background_size(width, height)
         
         self.set_minimum_size(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -26,7 +27,7 @@ class Gameview(arcade.Window):
         # Mouse Cursor
         self.mouse_circle_center_x = width // 2
         self.mouse_circle_center_y = height // 2
-        self.mouse_circle_radius = 20
+        self.mouse_circle_radius = 10
         self.mouse_circle_color = arcade.color.YELLOW
         
         self.enemies = []
@@ -35,12 +36,13 @@ class Gameview(arcade.Window):
         
 
         self.spawn_timer = 0
-        self.max_enemies = 15
+        self.max_enemies = 3
         self.spawn_interval = 2.0 
-        
         self.score = 0
+        self.TARGET_TO_INCREASE_ENEMIES = 100
+        self.TARGET_TO_DECREASE_INTERVAL = 200
         
-        for _ in range(2):
+        for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(width, height))
         
         for _ in range(1):
@@ -132,8 +134,9 @@ class Gameview(arcade.Window):
         
         pos_x, pos_y = self.player.get_position()
         
+           
         for enemy in self.enemies:
-            enemy.update(delta_time, pos_x, pos_y, self.width, self.height, self.enemies)
+            enemy.update(delta_time, pos_x, pos_y, self.width+50, self.height+50, self.enemies)
         
         for bullet in self.bullets:
             bullet.update()
@@ -162,6 +165,11 @@ class Gameview(arcade.Window):
                     enemies_to_remove.append(hit_enemy)
                     self.score += 10
                     print(self.score)
+                    
+                    if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
+                        self.max_enemies += 1
+                        self.TARGET_TO_INCREASE_ENEMIES += 100
+                        print(f"Increase Max Enemies: {self.max_enemies}, Target: {self.TARGET_TO_INCREASE_ENEMIES}") #Debug
         
         player_sprite = self.player.player
         for enemy in self.enemies:
@@ -171,7 +179,7 @@ class Gameview(arcade.Window):
                 player_died = self.player.take_damage(10)
                 
                 if player_died:
-                    print("Game Over! Player died!")
+                    print("Game Over! Player died!") #Debug
                 
                 enemies_to_remove.append(enemy) 
 
@@ -187,6 +195,14 @@ class Gameview(arcade.Window):
             self.spawn_timer += delta_time
             if self.spawn_timer >= self.spawn_interval:
                 self.enemies.append(enemies.Enemies(self.width+300, self.height+300))
+                # Enemies Fast Spawn
+                if self.score >= self.TARGET_TO_DECREASE_INTERVAL:
+                    self.spawn_interval -= 0.1
+                    self.TARGET_TO_DECREASE_INTERVAL += 200
+                    print(f"Spawn Interval: {self.spawn_interval}, Target: {self.TARGET_TO_DECREASE_INTERVAL}") #Debug
+                elif self.spawn_interval <= 0.5:
+                    self.spawn_interval = 0.5
+                    print(f"Spawn Interval: {self.spawn_interval}, Target: {self.TARGET_TO_DECREASE_INTERVAL}") #Debug
                 self.spawn_timer = 0 
         
         for i in range(len(self.bullets) - 1, -1, -1):

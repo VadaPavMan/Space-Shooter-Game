@@ -1,11 +1,12 @@
 import arcade
 import math
+from resources import resource_path
 import random
 
 class Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
         self.radius = 0.4
-        self.bullet = arcade.Sprite("assets/bullets/06.png", self.radius)
+        self.bullet = arcade.Sprite(resource_path("assets/bullets/06.png"), self.radius)
         self.bullet.center_x = x
         self.bullet.center_y = y
         self.bullet.angle = angle
