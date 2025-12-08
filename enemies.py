@@ -1,5 +1,6 @@
 import arcade
 import math
+from resources import resource_path
 import random
 import shoot
 
@@ -8,9 +9,9 @@ class Enemies():
     def __init__(self, width, height):
         self.choose = random.randint(1, 3)
         self.hard_choose = random.randint(0, 1)
-        self.crab_texture = arcade.load_texture("assets/enemies_ship/enemy_crab.png")
-        self.moster_texture = arcade.load_texture("assets/enemies_ship/enemy_moster.png")
-        self.big_moster_texture = arcade.load_texture("assets/enemies_ship/enemy_big_moster.png")
+        self.crab_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_crab.png"))
+        self.moster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_moster.png"))
+        self.big_moster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_big_moster.png"))
         # self.enemy = arcade.Sprite(self.crab_texture, self.radius)
         
         if self.choose == 1:
