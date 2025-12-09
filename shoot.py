@@ -5,7 +5,7 @@ import random
 
 class Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
-        self.radius = 0.4
+        self.radius = 0.3
         self.bullet = arcade.Sprite(resource_path("assets/bullets/06.png"), self.radius)
         self.bullet.center_x = x
         self.bullet.center_y = y
@@ -30,9 +30,14 @@ class Bullet(arcade.Sprite):
 class Enemy_Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
         self.radius = 0.2
+        angle_rad = math.radians(angle)
+        forward_offset = 10
+        forward_x = math.sin(angle_rad) * forward_offset
+        forward_y = math.cos(angle_rad) * forward_offset
+        
         self.bullet = arcade.Sprite("assets/bullets/02.png", self.radius)
-        self.bullet.center_x = x
-        self.bullet.center_y = y
+        self.bullet.center_x = x + forward_x
+        self.bullet.center_y = y + forward_y
         self.bullet.angle = angle
         
         self.speed = 4
@@ -54,9 +59,6 @@ class Enemy_Bullet(arcade.Sprite):
 class Enemy_Bullet_Dual(arcade.Sprite):
     def __init__(self, angle, x, y):
         self.radius = 0.1
-        
-        self.radius = 0.1
-        
         angle_rad = math.radians(angle)
         
         gun_offset = 15 

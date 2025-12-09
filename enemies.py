@@ -7,23 +7,37 @@ import shoot
 class Enemies():
     
     def __init__(self, width, height):
-        self.choose = random.randint(1, 3)
-        self.hard_choose = random.randint(0, 1)
+        
+        # Textures
         self.crab_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_crab.png"))
-        self.moster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_moster.png"))
-        self.big_moster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_big_moster.png"))
+        self.monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_monster.png"))
+        self.big_monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_big_monster.png"))
         # self.enemy = arcade.Sprite(self.crab_texture, self.radius)
         
-        if self.choose == 1:
-            self.enemy = arcade.Sprite(self.crab_texture, 1.5)
-        elif self.choose == 2:
-            self.enemy = arcade.Sprite(self.moster_texture, 1.8)
-        elif self.choose == 3:
-            self.enemy = arcade.Sprite(self.big_moster_texture, 0.7)
+        # Choose Enemy To Spawn
+        self.choose = random.randint(1, 10)
+        self.scale = 1 # Default 
+        if self.choose <= 4:
+            self.scale = 1.5
+            self.enemy = arcade.Sprite(self.crab_texture, self.scale)
+        elif self.choose <= 7:
+            self.scale = 1.8
+            self.enemy = arcade.Sprite(self.monster_texture, self.scale)
+        else:
+            self.choose = random.randint(1, 3)
+            if self.choose == 1:
+                self.scale = 1.5
+                self.enemy = arcade.Sprite(self.crab_texture, self.scale)
+            elif self.choose == 2:
+                self.scale = 1.8
+                self.enemy = arcade.Sprite(self.monster_texture, self.scale)
+            else:
+                self.scale = 0.7
+                self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
             
             
-        self.start_edge = random.randint(0, 3)
         
+        self.start_edge = random.randint(0, 3)
         if self.start_edge == 0:  # Top
             self.enemy.center_x = random.randint(0, width)
             self.enemy.center_y = height + 500
@@ -43,7 +57,7 @@ class Enemies():
         if self.enemy.texture != self.crab_texture:
             self.follow_distance = 200
         if self.enemy.texture == self.crab_texture:
-            self.speed = 3
+            self.speed = 4
         self.separation_distance = 80  
         
         self.just_spawned = True
@@ -53,7 +67,16 @@ class Enemies():
         self.shoot_active = True
         self.shoot_cooldown = 2
         self.shoot_timer = 0
-        self.max_health = 4
+        
+        # Health System
+        self.max_health = 4 # Default Health
+        if self.enemy.texture == self.big_monster_texture:
+            self.max_health = 6
+        elif self.enemy.texture == self.monster_texture:
+            self.max_health = 5
+        elif self.enemy.texture == self.crab_texture:
+            self.max_health = 3
+        
         self.current_health = self.max_health
         
         self.bullets = []
@@ -128,12 +151,18 @@ class Enemies():
         elif self.enemy.center_y >= height - 20:
             self.enemy.center_y = height - 20
             
-        if self.enemy.texture == self.big_moster_texture:
+        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture:
             if self.shoot():
                 bullet_x, bullet_y = self.get_position()
                 angle = self.get_angle()
-                new_bullet = shoot.Enemy_Bullet_Dual(angle, bullet_x, bullet_y)
-                self.bullets.append(new_bullet)
+                
+                if self.enemy.texture == self.big_monster_texture:
+                    new_bullet = shoot.Enemy_Bullet_Dual(angle, bullet_x, bullet_y)
+                    self.bullets.append(new_bullet)
+                    
+                elif self.enemy.texture == self.monster_texture:
+                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y)
+                    self.bullets.append(new_bullet)
         
         for bullet in self.bullets:
             bullet.update()
@@ -155,7 +184,7 @@ class Enemies():
     def draw(self):
         arcade.draw_sprite(self.enemy)
         
-        if self.enemy.texture == self.big_moster_texture:
+        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture:
             for bullet in self.bullets:
                 bullet.draw()
                 
