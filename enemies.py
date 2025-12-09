@@ -7,7 +7,6 @@ import shoot
 class Enemies():
     
     def __init__(self, width, height):
-        
         # Textures
         self.crab_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_crab.png"))
         self.monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_monster.png"))
