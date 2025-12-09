@@ -29,10 +29,11 @@ class Gameview(arcade.Window):
         self.mouse_circle_center_y = height // 2
         self.mouse_circle_radius = 10
         self.mouse_circle_color = arcade.color.YELLOW
-        
+
         self.enemies = []
         self.particles = []
         self.bullets = []
+        self.enemy_bullets = [] 
         
 
         self.spawn_timer = 0
@@ -53,6 +54,32 @@ class Gameview(arcade.Window):
         self.background.center_y = height // 2
         self.background.width = width
         self.background.height = height
+        
+    def draw_score_box(self):
+        # Score Box
+        bar_width = 100
+        bar_height = 20
+        x = 20
+        y = self.height - 70
+        
+        # Score Text Content
+        current_score = "Score: "+str(self.score)
+        text_color = arcade.color.WHITE
+        text_size = 12
+        
+        arcade.draw_lrbt_rectangle_filled(
+            x, x+bar_width, y, y+bar_height, arcade.color.BLUE
+        )
+        
+        arcade.draw_lrbt_rectangle_outline(
+            x, x + bar_width, y, y + bar_height, 
+            arcade.color.WHITE, 2
+        )
+        
+        arcade.draw_text(current_score, x+20, y+11,
+                         text_color, text_size,
+                         width=bar_width, align="center",
+                         anchor_x="center", anchor_y="center", bold=True)
     
     def draw_player_health_bar(self):
         bar_width = 200
@@ -104,6 +131,9 @@ class Gameview(arcade.Window):
         for bullet in self.bullets:
             bullet.draw()
         
+        for enemy_bullet in self.enemy_bullets:
+            enemy_bullet.draw()
+        
         for enemy in self.enemies:
             enemy.draw()
         
@@ -118,6 +148,7 @@ class Gameview(arcade.Window):
         self.player.draw()
         
         self.draw_player_health_bar()
+        self.draw_score_box()
         
     def on_resize(self, width, height):
         super().on_resize(width, height)
@@ -126,6 +157,7 @@ class Gameview(arcade.Window):
     def on_update(self, delta_time):
         self.player.update(self.width, self.height, delta_time)
         
+        # Player SHooting
         if self.player.shoot():
             bullet_x, bullet_y = self.player.get_position()
             angle = self.player.get_angle()
@@ -134,15 +166,24 @@ class Gameview(arcade.Window):
         
         pos_x, pos_y = self.player.get_position()
         
-           
         for enemy in self.enemies:
+            old_bullet_count = len(enemy.bullets)
+            
             enemy.update(delta_time, pos_x, pos_y, self.width+50, self.height+50, self.enemies)
+            
+            if len(enemy.bullets) > old_bullet_count:
+                new_bullets = enemy.bullets[old_bullet_count:]
+                self.enemy_bullets.extend(new_bullets)
         
         for bullet in self.bullets:
             bullet.update()
         
+        for enemy_bullet in self.enemy_bullets:
+            enemy_bullet.update()
+        
         bullets_to_remove = []
         enemies_to_remove = []
+        enemy_bullets_to_remove = []
 
         for bullet in self.bullets:
             bullet_sprite = getattr(bullet, 'bullet', getattr(bullet, 'sprite', bullet))
@@ -164,14 +205,39 @@ class Gameview(arcade.Window):
                 if is_dead:
                     enemies_to_remove.append(hit_enemy)
                     self.score += 10
-                    print(self.score)
+                    print(f"Score: {self.score}")
                     
                     if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
                         self.max_enemies += 1
                         self.TARGET_TO_INCREASE_ENEMIES += 100
-                        print(f"Increase Max Enemies: {self.max_enemies}, Target: {self.TARGET_TO_INCREASE_ENEMIES}") #Debug
+                        print(f"Increase Max Enemies: {self.max_enemies}")
         
         player_sprite = self.player.player
+        for enemy_bullet in self.enemy_bullets:
+            if enemy_bullet in enemy_bullets_to_remove:
+                continue
+            
+            # For Big Monster
+            if isinstance(enemy_bullet, shoot.Enemy_Bullet_Dual):
+                if (arcade.check_for_collision(player_sprite, enemy_bullet.bullet_left) or 
+                    arcade.check_for_collision(player_sprite, enemy_bullet.bullet_right)):
+                    
+                    player_died = self.player.take_damage(20)
+                    enemy_bullets_to_remove.append(enemy_bullet)
+                    
+                    if player_died:
+                        print("Game Over! Player died!")
+            
+            # For Monster            
+            elif isinstance(enemy_bullet, shoot.Enemy_Bullet):
+                if arcade.check_for_collision(player_sprite, enemy_bullet.bullet):
+                    player_died = self.player.take_damage(10) 
+                    enemy_bullets_to_remove.append(enemy_bullet)
+                    
+                    if player_died:
+                        print("Game Over! Player died!")
+        
+        # Crab 
         for enemy in self.enemies:
             if enemy in enemies_to_remove:
                 continue
@@ -179,7 +245,7 @@ class Gameview(arcade.Window):
                 player_died = self.player.take_damage(10)
                 
                 if player_died:
-                    print("Game Over! Player died!") #Debug
+                    print("Game Over! Player died!")
                 
                 enemies_to_remove.append(enemy) 
 
@@ -187,27 +253,39 @@ class Gameview(arcade.Window):
             if bullet in self.bullets:
                 self.bullets.remove(bullet)
         
+        for enemy_bullet in enemy_bullets_to_remove:
+            if enemy_bullet in self.enemy_bullets:
+                self.enemy_bullets.remove(enemy_bullet)
+        
         for enemy in enemies_to_remove:
             if enemy in self.enemies:
+                enemy.bullets.clear()
                 self.enemies.remove(enemy)
 
+        # Spawn NEw Enemies
         if len(self.enemies) < self.max_enemies:
             self.spawn_timer += delta_time
             if self.spawn_timer >= self.spawn_interval:
                 self.enemies.append(enemies.Enemies(self.width+300, self.height+300))
-                # Enemies Fast Spawn
+                
+                # Increase Difficulty
                 if self.score >= self.TARGET_TO_DECREASE_INTERVAL:
                     self.spawn_interval -= 0.1
                     self.TARGET_TO_DECREASE_INTERVAL += 200
-                    print(f"Spawn Interval: {self.spawn_interval}, Target: {self.TARGET_TO_DECREASE_INTERVAL}") #Debug
-                elif self.spawn_interval <= 0.5:
+                    print(f"Spawn Interval: {self.spawn_interval}")
+                    
+                if self.spawn_interval <= 0.5:
                     self.spawn_interval = 0.5
-                    print(f"Spawn Interval: {self.spawn_interval}, Target: {self.TARGET_TO_DECREASE_INTERVAL}") #Debug
+                    
                 self.spawn_timer = 0 
         
         for i in range(len(self.bullets) - 1, -1, -1):
             if self.bullets[i].off_screen(self.width, self.height):
                 self.bullets.pop(i)
+        
+        for i in range(len(self.enemy_bullets) - 1, -1, -1):
+            if self.enemy_bullets[i].off_screen(self.width, self.height):
+                self.enemy_bullets.pop(i)
         
         for particle in self.particles:
             particle.update()

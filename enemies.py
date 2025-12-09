@@ -11,7 +11,6 @@ class Enemies():
         self.crab_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_crab.png"))
         self.monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_monster.png"))
         self.big_monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_big_monster.png"))
-        # self.enemy = arcade.Sprite(self.crab_texture, self.radius)
         
         # Choose Enemy To Spawn
         self.choose = random.randint(1, 10)
@@ -33,8 +32,6 @@ class Enemies():
             else:
                 self.scale = 0.7
                 self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
-            
-            
         
         self.start_edge = random.randint(0, 3)
         if self.start_edge == 0:  # Top
@@ -149,7 +146,8 @@ class Enemies():
             self.enemy.center_y = 20
         elif self.enemy.center_y >= height - 20:
             self.enemy.center_y = height - 20
-            
+        
+        # Shooting System
         if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture:
             if self.shoot():
                 bullet_x, bullet_y = self.get_position()
@@ -163,18 +161,12 @@ class Enemies():
                     new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y)
                     self.bullets.append(new_bullet)
         
-        for bullet in self.bullets:
-            bullet.update()
-            
+        # Shooting Cooldown
         if not self.shoot_active:
             self.shoot_timer += delta_time
             if self.shoot_timer >= self.shoot_cooldown:
                 self.shoot_active = True
                 self.shoot_timer = 0
-                
-        for i in range(len(self.bullets) - 1, -1, -1):
-            if self.bullets[i].off_screen(width,height):
-                self.bullets.pop(i)
 
     def take_damage(self):
         self.current_health -= 1
@@ -183,10 +175,6 @@ class Enemies():
     def draw(self):
         arcade.draw_sprite(self.enemy)
         
-        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture:
-            for bullet in self.bullets:
-                bullet.draw()
-                
         if self.current_health < self.max_health and self.current_health > 0:
             self.draw_health_bar()
 
