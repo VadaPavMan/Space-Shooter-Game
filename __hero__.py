@@ -180,3 +180,9 @@ class Player():
     
     def get_health(self):
         return self.current_health, self.max_health
+    
+    def laser(self, num):
+        if num:
+            self.shoot_cooldown = 0.05
+        else:
+            return

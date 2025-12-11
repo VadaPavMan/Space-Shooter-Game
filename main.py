@@ -11,7 +11,11 @@ WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
 WINDOW_TITLE = "Space Shooter"
 
-
+HEALTH_POWERUP = "health"
+DUALs_POWERUP = "dual_shooter"
+SHIELD_POWERUP = "shield"
+LASER_POWERUP = "laser"
+ALLIN1_POWERUP = "shield_health_max"
 class Gameview(arcade.Window):
     
     def __init__(self, width, height, title):
@@ -38,6 +42,7 @@ class Gameview(arcade.Window):
         self.powerups = []
         self.powerups_target = 0.19
         self.powerups_increase_chance = 500
+        self.powerups_timer = 0
         
 
         self.spawn_timer = 0
@@ -245,17 +250,29 @@ class Gameview(arcade.Window):
             if arcade.check_for_collision(self.player.player, pu.sprite):
                 self.player.invincible = True
                 self.player.invincible_timer = 0.0
-                # if pu.texture == 
-                heal_amount = 30
-                self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                if HEALTH_POWERUP in pu.get_filePath():
+                    heal_amount = 30
+                    self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                    print(f"Path: {pu.get_filePath()} And {HEALTH_POWERUP}")
+                elif DUALs_POWERUP in pu.get_filePath():
+                    print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
+                elif LASER_POWERUP in pu.get_filePath():
+                    self.player.laser(1)
+                    print(f"Path: {pu.get_filePath()} And {LASER_POWERUP}")
+                elif SHIELD_POWERUP in pu.get_filePath():
+                    print(f"Path: {pu.get_filePath()} And {SHIELD_POWERUP}")
+                elif ALLIN1_POWERUP in pu.get_filePath():
+                    print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
                 self.player.update_texture()
                 powerups_to_remove.append(pu)
-                print("Powerup picked up: invincibility + healed", heal_amount)
 
         for pu in powerups_to_remove:
             if pu in self.powerups:
                 self.powerups.remove(pu)
-
+            # else:
+            #     self.spawn_timer += int(delta_time)
+            #     if self.spawn_timer > 2:
+            #         self.powerups.remove(pu)
         
         player_sprite = self.player.player
         for enemy_bullet in self.enemy_bullets:
