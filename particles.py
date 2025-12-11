@@ -41,7 +41,6 @@ class Particle:
             arcade.color.LIGHT_GRAY,
             arcade.color.DARK_GRAY,
             arcade.color.DARK_BLUE_GRAY,
-            arcade.color.LIGHT_BROWN,
         ])
         
         self.speed = random.uniform(1, 3)

@@ -5,6 +5,7 @@ import particles
 import __hero__
 import shoot
 import enemies
+import powerups
 
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
@@ -23,30 +24,33 @@ class Gameview(arcade.Window):
         self.set_mouse_visible(False)
         
         self.player = __hero__.Player(width, height)
-        
         # Mouse Cursor
         self.mouse_circle_center_x = width // 2
         self.mouse_circle_center_y = height // 2
         self.mouse_circle_radius = 10
-        self.mouse_circle_color = arcade.color.YELLOW
+        self.mouse_circle_color = arcade.color.PINK
 
         self.enemies = []
         self.particles = []
         self.bullets = []
         self.enemy_bullets = [] 
         
+        self.powerups = []
+        self.powerups_target = 0.19
+        self.powerups_increase_chance = 500
+        
 
         self.spawn_timer = 0
         self.max_enemies = 3
         self.spawn_interval = 2.0 
         self.score = 0
-        self.TARGET_TO_INCREASE_ENEMIES = 100
-        self.TARGET_TO_DECREASE_INTERVAL = 200
+        self.TARGET_TO_INCREASE_ENEMIES = 200
+        self.TARGET_TO_DECREASE_INTERVAL = 300
         
         for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(width, height))
         
-        for _ in range(1):
+        for _ in range(5):
             self.particles.append(particles.Particle(width, height))
             
     def update_background_size(self, width, height):
@@ -66,6 +70,12 @@ class Gameview(arcade.Window):
         current_score = "Score: "+str(self.score)
         text_color = arcade.color.WHITE
         text_size = 12
+        text_x = 40
+        text_y = y+11
+        if self.score >= 100:
+            text_x  += 10
+        elif self.score >= 1000:
+            text_x  += 10
         
         arcade.draw_lrbt_rectangle_filled(
             x, x+bar_width, y, y+bar_height, arcade.color.BLUE
@@ -76,10 +86,12 @@ class Gameview(arcade.Window):
             arcade.color.WHITE, 2
         )
         
-        arcade.draw_text(current_score, x+20, y+11,
+        arcade.draw_text(current_score, text_x, text_y,
                          text_color, text_size,
                          width=bar_width, align="center",
                          anchor_x="center", anchor_y="center", bold=True)
+        
+                
     
     def draw_player_health_bar(self):
         bar_width = 200
@@ -121,10 +133,14 @@ class Gameview(arcade.Window):
             bold=True
         )
         
+        
     def on_draw(self):
         self.clear()
         arcade.draw_sprite(self.background)
         
+        for pu in self.powerups:
+            pu.on_draw()
+
         for particle in self.particles:
             particle.draw()
         
@@ -207,10 +223,39 @@ class Gameview(arcade.Window):
                     self.score += 10
                     print(f"Score: {self.score}")
                     
-                    if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
-                        self.max_enemies += 1
-                        self.TARGET_TO_INCREASE_ENEMIES += 100
-                        print(f"Increase Max Enemies: {self.max_enemies}")
+                    if random.random() <= self.powerups_target:            
+                        if int(delta_time) % 2 == 0:
+                            ex , ey = hit_enemy.get_position()
+                            self.powerups.append(powerups.ShieldDemo(ex, ey))
+                            if self.score >= self.powerups_increase_chance:
+                                self.powerups_target += 0.05
+                                self.powerups_increase_chance += 500
+                                print(f"Target: {self.powerups_target}, Chance: {self.powerups_increase_chance}")
+                    
+                    if self.max_enemies < 26:
+                        if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
+                            self.max_enemies += 1
+                            self.TARGET_TO_INCREASE_ENEMIES += 200
+                            print(f"Increase Max Enemies: {self.max_enemies}")
+               
+        powerups_to_remove = []
+        for pu in self.powerups:
+            pu.on_update(delta_time)
+
+            if arcade.check_for_collision(self.player.player, pu.sprite):
+                self.player.invincible = True
+                self.player.invincible_timer = 0.0
+                # if pu.texture == 
+                heal_amount = 30
+                self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                self.player.update_texture()
+                powerups_to_remove.append(pu)
+                print("Powerup picked up: invincibility + healed", heal_amount)
+
+        for pu in powerups_to_remove:
+            if pu in self.powerups:
+                self.powerups.remove(pu)
+
         
         player_sprite = self.player.player
         for enemy_bullet in self.enemy_bullets:
@@ -224,6 +269,7 @@ class Gameview(arcade.Window):
                     
                     player_died = self.player.take_damage(20)
                     enemy_bullets_to_remove.append(enemy_bullet)
+                    
                     
                     if player_died:
                         print("Game Over! Player died!")
@@ -269,10 +315,11 @@ class Gameview(arcade.Window):
                 self.enemies.append(enemies.Enemies(self.width+300, self.height+300))
                 
                 # Increase Difficulty
-                if self.score >= self.TARGET_TO_DECREASE_INTERVAL:
-                    self.spawn_interval -= 0.1
-                    self.TARGET_TO_DECREASE_INTERVAL += 200
-                    print(f"Spawn Interval: {self.spawn_interval}")
+                if self.max_enemies < 26:
+                    if self.score >= self.TARGET_TO_DECREASE_INTERVAL:
+                        self.spawn_interval -= 0.1
+                        self.TARGET_TO_DECREASE_INTERVAL += 300
+                        print(f"Spawn Interval: {self.spawn_interval}")
                     
                 if self.spawn_interval <= 0.5:
                     self.spawn_interval = 0.5
@@ -289,6 +336,7 @@ class Gameview(arcade.Window):
         
         for particle in self.particles:
             particle.update()
+            
     
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
