@@ -6,6 +6,7 @@ import __hero__
 import shoot
 import enemies
 import powerups
+import time
 
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
@@ -40,9 +41,12 @@ class Gameview(arcade.Window):
         self.enemy_bullets = [] 
         
         self.powerups = []
-        self.powerups_target = 0.19
+        self.powerups_target = 0.90
         self.powerups_increase_chance = 500
         self.powerups_timer = 0
+        self.powerups_active = False
+        self.powerup_type = ""
+        self.dual_shoot_powerup = False
         
 
         self.spawn_timer = 0
@@ -178,11 +182,15 @@ class Gameview(arcade.Window):
     def on_update(self, delta_time):
         self.player.update(self.width, self.height, delta_time)
         
+        self.powerup_timer()
         # Player SHooting
         if self.player.shoot():
             bullet_x, bullet_y = self.player.get_position()
             angle = self.player.get_angle()
-            new_bullet = shoot.Bullet(angle, bullet_x, bullet_y)
+            if not(self.dual_shoot_powerup):
+                new_bullet = shoot.Bullet(angle, bullet_x, bullet_y)
+            else:
+                new_bullet = shoot.Player_Bullet_Dual(angle, bullet_x, bullet_y)
             self.bullets.append(new_bullet)
         
         pos_x, pos_y = self.player.get_position()
@@ -207,16 +215,27 @@ class Gameview(arcade.Window):
         enemy_bullets_to_remove = []
 
         for bullet in self.bullets:
-            bullet_sprite = getattr(bullet, 'bullet', getattr(bullet, 'sprite', bullet))
+            # Dual Bullets
+            if isinstance(bullet, shoot.Player_Bullet_Dual):
+                bullet_sprites = [bullet.bullet_left, bullet.bullet_right]
+            else:
+            # Single Bullet
+                bullet_sprite = getattr(bullet, 'bullet', getattr(bullet, 'sprite', bullet))
+                bullet_sprites = [bullet_sprite]
             
             hit_enemy = None
             for enemy in self.enemies:
                 if enemy in enemies_to_remove:
                     continue
                 
-                if arcade.check_for_collision(bullet_sprite, enemy.enemy):
-                    hit_enemy = enemy
-                    break 
+                # Collision for dual bullets
+                for bs in bullet_sprites:
+                    if arcade.check_for_collision(bs, enemy.enemy):
+                        hit_enemy = enemy
+                        break
+                
+                if hit_enemy:
+                    break
             
             if hit_enemy:
                 bullets_to_remove.append(bullet)
@@ -251,13 +270,25 @@ class Gameview(arcade.Window):
                 self.player.invincible = True
                 self.player.invincible_timer = 0.0
                 if HEALTH_POWERUP in pu.get_filePath():
-                    heal_amount = 30
-                    self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                    self.powerups_active = True
+                    self.powerup_type = pu.get_filePath()
+                    heal_amount = 20
+                    if self.powerups_active:
+                        self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                        self.powerups_active = False
                     print(f"Path: {pu.get_filePath()} And {HEALTH_POWERUP}")
                 elif DUALs_POWERUP in pu.get_filePath():
+                    self.dual_shoot_powerup = True
                     print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
                 elif LASER_POWERUP in pu.get_filePath():
-                    self.player.laser(1)
+                    self.powerups_active = True
+                    self.powerup_type = pu.get_filePath()
+                    self.powerups_timer = time.time()
+                    if self.powerups_active:
+                        self.player.rapidfire(1)
+                        self.player.player.texture = self.player.rapid_texture
+                        print("Rapid Fire Active")
+                        print(f"Timer: {self.powerups_timer}")
                     print(f"Path: {pu.get_filePath()} And {LASER_POWERUP}")
                 elif SHIELD_POWERUP in pu.get_filePath():
                     print(f"Path: {pu.get_filePath()} And {SHIELD_POWERUP}")
@@ -269,10 +300,6 @@ class Gameview(arcade.Window):
         for pu in powerups_to_remove:
             if pu in self.powerups:
                 self.powerups.remove(pu)
-            # else:
-            #     self.spawn_timer += int(delta_time)
-            #     if self.spawn_timer > 2:
-            #         self.powerups.remove(pu)
         
         player_sprite = self.player.player
         for enemy_bullet in self.enemy_bullets:
@@ -374,6 +401,13 @@ class Gameview(arcade.Window):
     def on_mouse_release(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.player.on_mouse_release()
+            
+    def powerup_timer(self):
+        if self.powerups_active and (time.time() - self.powerups_timer) > 15:
+            self.powerups_active = False
+            if LASER_POWERUP in self.powerup_type:
+                self.player.rapidfire(0) 
+             
 
 
 if __name__ == "__main__":

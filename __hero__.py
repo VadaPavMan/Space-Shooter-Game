@@ -2,6 +2,7 @@ import arcade
 from resources import resource_path
 import random
 import math
+import powerups
 
 class Player():
     
@@ -11,6 +12,7 @@ class Player():
         self.health_60_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_less_damage.png"))
         self.health_30_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_damage.png"))
         self.health_10_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_very_damage.png"))
+        self.rapid_texture = arcade.load_texture(resource_path("assets/hero_spaceship/rapidfire.png"))
 
         self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
         self.player.center_x = width // 2
@@ -34,7 +36,7 @@ class Player():
         # Health system
         self.max_health = 100
         self.current_health = self.max_health
-        self.invincible = False  
+        self.invincible = False 
         self.invincible_timer = 0
         self.invincible_duration = 1.0  
         
@@ -104,6 +106,8 @@ class Player():
             new_texture = self.health_30_texture
         elif self.current_health <= 60:
             new_texture = self.health_60_texture
+        elif self.invincible:
+            new_texture = self.rapid_texture
             
         if self.player.texture != new_texture:
             self.player.texture = new_texture
@@ -181,8 +185,10 @@ class Player():
     def get_health(self):
         return self.current_health, self.max_health
     
-    def laser(self, num):
+    def rapidfire(self, num):
         if num:
             self.shoot_cooldown = 0.05
         else:
+            self.shoot_cooldown = 0.2
+            self.player.update()
             return
