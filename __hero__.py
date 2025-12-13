@@ -1,3 +1,4 @@
+import config
 import arcade
 from resources import resource_path
 import random
@@ -14,8 +15,10 @@ class Player():
         self.health_10_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_very_damage.png"))
         self.rapid_texture = arcade.load_texture(resource_path("assets/hero_spaceship/rapidfire.png"))
         self.dual_shooter_texture = arcade.load_texture(resource_path("assets/hero_spaceship/dual_shooter.png"))
+        self.allin1_texture = arcade.load_texture(resource_path("assets/hero_spaceship/allin1.png"))
 
         self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
+
         self.player.center_x = width // 2
         self.player.center_y = height // 2
         self.player._angle = 180
@@ -108,7 +111,7 @@ class Player():
         elif self.current_health <= 60:
             new_texture = self.health_60_texture
         elif self.invincible:
-            new_texture = self.dual_shooter_texture
+            new_texture = self.allin1_texture
             
         if self.player.texture != new_texture:
             self.player.texture = new_texture

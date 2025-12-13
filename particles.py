@@ -1,5 +1,7 @@
-import random
+import config
 import arcade
+arcade.gl.DEFAULT_FILTER = (arcade.gl.NEAREST, arcade.gl.NEAREST)
+import random
 
 
 class Particle:

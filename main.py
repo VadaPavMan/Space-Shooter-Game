@@ -1,3 +1,4 @@
+import config
 import arcade
 from resources import resource_path  
 import random

@@ -1,3 +1,4 @@
+import config
 import arcade
 import random
 
