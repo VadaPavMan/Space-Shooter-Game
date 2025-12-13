@@ -13,6 +13,7 @@ class Player():
         self.health_30_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_damage.png"))
         self.health_10_texture = arcade.load_texture(resource_path("assets/hero_spaceship/ship_very_damage.png"))
         self.rapid_texture = arcade.load_texture(resource_path("assets/hero_spaceship/rapidfire.png"))
+        self.dual_shooter_texture = arcade.load_texture(resource_path("assets/hero_spaceship/dual_shooter.png"))
 
         self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
         self.player.center_x = width // 2
@@ -107,7 +108,7 @@ class Player():
         elif self.current_health <= 60:
             new_texture = self.health_60_texture
         elif self.invincible:
-            new_texture = self.rapid_texture
+            new_texture = self.dual_shooter_texture
             
         if self.player.texture != new_texture:
             self.player.texture = new_texture
@@ -168,16 +169,17 @@ class Player():
     def take_damage(self, damage_amount):
         if self.invincible:
             return False  
-        
+                
         self.current_health -= damage_amount
-        self.invincible = True  
-        self.invincible_timer = 0
-        
-        if self.current_health < 0:
-            self.current_health = 0
-        
-        self.update_texture()
-        return self.current_health <= 0  
+        if damage_amount != 0:
+            self.invincible = True  
+            self.invincible_timer = 0
+            
+            if self.current_health < 0:
+                self.current_health = 0
+            
+            self.update_texture()
+            return self.current_health <= 0  
     
     def is_alive(self):
         return self.current_health > 0

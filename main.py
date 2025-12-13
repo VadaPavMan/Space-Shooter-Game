@@ -47,6 +47,10 @@ class Gameview(arcade.Window):
         self.powerups_active = False
         self.powerup_type = ""
         self.dual_shoot_powerup = False
+        self.dual_shoot_timer = 0
+        self.player_shield = False
+        self.player_damage = 10
+        self.shield_timer = 0
         
 
         self.spawn_timer = 0
@@ -215,11 +219,9 @@ class Gameview(arcade.Window):
         enemy_bullets_to_remove = []
 
         for bullet in self.bullets:
-            # Dual Bullets
             if isinstance(bullet, shoot.Player_Bullet_Dual):
                 bullet_sprites = [bullet.bullet_left, bullet.bullet_right]
             else:
-            # Single Bullet
                 bullet_sprite = getattr(bullet, 'bullet', getattr(bullet, 'sprite', bullet))
                 bullet_sprites = [bullet_sprite]
             
@@ -228,7 +230,7 @@ class Gameview(arcade.Window):
                 if enemy in enemies_to_remove:
                     continue
                 
-                # Collision for dual bullets
+                # Check collision 
                 for bs in bullet_sprites:
                     if arcade.check_for_collision(bs, enemy.enemy):
                         hit_enemy = enemy
@@ -240,7 +242,7 @@ class Gameview(arcade.Window):
             if hit_enemy:
                 bullets_to_remove.append(bullet)
                 
-                is_dead = hit_enemy.take_damage()
+                is_dead = hit_enemy.take_damage(isinstance(bullet, shoot.Player_Bullet_Dual))
                 
                 if is_dead:
                     enemies_to_remove.append(hit_enemy)
@@ -279,6 +281,7 @@ class Gameview(arcade.Window):
                     print(f"Path: {pu.get_filePath()} And {HEALTH_POWERUP}")
                 elif DUALs_POWERUP in pu.get_filePath():
                     self.dual_shoot_powerup = True
+                    self.dual_shoot_timer = time.time()
                     print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
                 elif LASER_POWERUP in pu.get_filePath():
                     self.powerups_active = True
@@ -291,6 +294,11 @@ class Gameview(arcade.Window):
                         print(f"Timer: {self.powerups_timer}")
                     print(f"Path: {pu.get_filePath()} And {LASER_POWERUP}")
                 elif SHIELD_POWERUP in pu.get_filePath():
+                    self.player_shield = True
+                    self.shield_timer = time.time()
+                    self.powerup_type = pu.get_filePath()
+                    if self.player_shield:
+                        self.player_damage = 0
                     print(f"Path: {pu.get_filePath()} And {SHIELD_POWERUP}")
                 elif ALLIN1_POWERUP in pu.get_filePath():
                     print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
@@ -311,7 +319,10 @@ class Gameview(arcade.Window):
                 if (arcade.check_for_collision(player_sprite, enemy_bullet.bullet_left) or 
                     arcade.check_for_collision(player_sprite, enemy_bullet.bullet_right)):
                     
-                    player_died = self.player.take_damage(20)
+                    if self.player_shield:
+                        player_died = self.player.take_damage(self.player_damage)
+                    else:
+                        player_died = self.player.take_damage(20)
                     enemy_bullets_to_remove.append(enemy_bullet)
                     
                     
@@ -321,7 +332,10 @@ class Gameview(arcade.Window):
             # For Monster            
             elif isinstance(enemy_bullet, shoot.Enemy_Bullet):
                 if arcade.check_for_collision(player_sprite, enemy_bullet.bullet):
-                    player_died = self.player.take_damage(10) 
+                    if self.player_shield:
+                        player_died = self.player.take_damage(self.player_damage)
+                    else:
+                        player_died = self.player.take_damage(10) 
                     enemy_bullets_to_remove.append(enemy_bullet)
                     
                     if player_died:
@@ -332,7 +346,11 @@ class Gameview(arcade.Window):
             if enemy in enemies_to_remove:
                 continue
             if arcade.check_for_collision(player_sprite, enemy.enemy):
-                player_died = self.player.take_damage(10)
+                
+                if self.player_shield:
+                    player_died = self.player.take_damage(self.player_damage)
+                else:
+                    player_died = self.player.take_damage(10)
                 
                 if player_died:
                     print("Game Over! Player died!")
@@ -361,7 +379,7 @@ class Gameview(arcade.Window):
                 # Increase Difficulty
                 if self.max_enemies < 26:
                     if self.score >= self.TARGET_TO_DECREASE_INTERVAL:
-                        self.spawn_interval -= 0.1
+                        self.spawn_interval -= 0.15
                         self.TARGET_TO_DECREASE_INTERVAL += 300
                         print(f"Spawn Interval: {self.spawn_interval}")
                     
@@ -407,7 +425,13 @@ class Gameview(arcade.Window):
             self.powerups_active = False
             if LASER_POWERUP in self.powerup_type:
                 self.player.rapidfire(0) 
-             
+        
+        if self.dual_shoot_powerup and (time.time() - self.dual_shoot_timer) > 15:
+            self.dual_shoot_powerup = False 
+        
+        if self.player_shield and (time.time()- self.shield_timer) > 15:
+            self.player_shield = False
+            self.player_damage = 10
 
 
 if __name__ == "__main__":

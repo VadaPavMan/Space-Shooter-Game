@@ -168,8 +168,11 @@ class Enemies():
                 self.shoot_active = True
                 self.shoot_timer = 0
 
-    def take_damage(self):
-        self.current_health -= 1
+    def take_damage(self, check_dual):
+        if check_dual:
+            self.current_health -= 3
+        else:
+            self.current_health -= 1
         return self.current_health <= 0
     
     def draw(self):

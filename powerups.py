@@ -11,8 +11,8 @@ class ShieldDemo(arcade.Sprite):
         laser_texture = "assets/powerups/laser.png"
         allinone_texture = "assets/powerups/shield_health_max.png"
         
-        regular_powerups = [dual_shooter_texture, dual_shooter_texture]
-        strong_powerups = [dual_shooter_texture, dual_shooter_texture, dual_shooter_texture]
+        regular_powerups = [shield_texture, shield_texture]
+        strong_powerups = [shield_texture, shield_texture, shield_texture]
         ultimate_powerups = [laser_texture, health_texture, allinone_texture]
         
         # regular_powerups = [health_texture, dual_shooter_texture]
