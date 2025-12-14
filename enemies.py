@@ -17,18 +17,17 @@ class Enemies():
         
         
         check_speed_monster = False
-        self.high_damage_monster = False
         # Choose Enemy To Spawn
         self.choose = random.randint(1, 10)
         self.scale = 1 # Default 
         if self.choose <= 4:
             self.scale = 1.5
             self.enemy = arcade.Sprite(self.crab_texture, self.scale)
-        elif self.choose <= 5:
+        elif self.choose <= 7:
             self.scale = 1
             self.enemy = arcade.Sprite(self.monster_texture, self.scale)
         else:
-            self.choose = random.randint(4, 4)
+            self.choose = random.randint(1, 5)
             if self.choose == 1:
                 self.scale = 1.5
                 self.enemy = arcade.Sprite(self.crab_texture, self.scale)
@@ -42,7 +41,6 @@ class Enemies():
             elif self.choose == 4:
                 self.scale = 0.8
                 self.enemy = arcade.Sprite(self.monster_high_damage_texture, self.scale)
-                self.high_damage_monster = True
             else:
                 self.scale = 0.7
                 self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
@@ -83,11 +81,11 @@ class Enemies():
         
         # Health System
         self.max_health = 4 # Default Health
-        if self.enemy.texture == self.big_monster_texture:
+        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_high_damage_texture:
             self.max_health = 6
         elif self.enemy.texture == self.monster_texture:
             self.max_health = 5
-        elif self.enemy.texture == self.crab_texture:
+        elif self.enemy.texture == self.crab_texture or self.enemy.texture == self.monster_speedshooter_texture:
             self.max_health = 3
         
         self.current_health = self.max_health
@@ -183,7 +181,7 @@ class Enemies():
                     self.bullets.append(new_bullet)
                 
                 elif self.enemy.texture == self.monster_high_damage_texture:
-                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y)
+                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y, high= True)
                     self.bullets.append(new_bullet)
         
         # Shooting Cooldown
@@ -240,8 +238,7 @@ class Enemies():
         return False
     
     def high_damage_enemy(self):
-        if self.high_damage_monster:
-            self.high_damage_monster = False
+        if self.enemy.texture == self.monster_high_damage_texture:
             return True
         else:
             return False
