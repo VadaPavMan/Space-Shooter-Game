@@ -42,7 +42,7 @@ class Gameview(arcade.Window):
         self.enemy_bullets = [] 
         
         self.powerups = []
-        self.powerups_target = 0.90
+        self.powerups_target = 0.19
         self.powerups_increase_chance = 500
         self.powerups_timer = 0
         self.powerups_active = False
