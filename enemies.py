@@ -20,10 +20,10 @@ class Enemies():
         # Choose Enemy To Spawn
         self.choose = random.randint(1, 10)
         self.scale = 1 # Default 
-        if self.choose <= 4:
+        if self.choose <= 3:
             self.scale = 1.5
             self.enemy = arcade.Sprite(self.crab_texture, self.scale)
-        elif self.choose <= 7:
+        elif self.choose <= 6:
             self.scale = 1
             self.enemy = arcade.Sprite(self.monster_texture, self.scale)
         else:
@@ -35,16 +35,21 @@ class Enemies():
                 self.scale = 1
                 self.enemy = arcade.Sprite(self.monster_texture, self.scale)
             elif self.choose == 3:
-                self.scale = 1.4
-                self.enemy = arcade.Sprite(self.monster_speedshooter_texture, self.scale)
-                check_speed_monster = True
-            elif self.choose == 4:
-                self.scale = 0.8
-                self.enemy = arcade.Sprite(self.monster_high_damage_texture, self.scale)
-            else:
                 self.scale = 0.7
                 self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
-        
+            elif self.choose > 3:
+                self.choose = random.randint(1, 3)
+                if self.choose == 1:
+                    self.scale = 0.7
+                    self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
+                elif self.choose == 2:
+                    self.scale = 0.7
+                    self.enemy = arcade.Sprite(self.monster_high_damage_texture, self.scale)
+                else:
+                    self.scale = 1.4
+                    self.enemy = arcade.Sprite(self.monster_speedshooter_texture, self.scale)
+                    check_speed_monster = True
+                
         self.start_edge = random.randint(0, 3)
         if self.start_edge == 0:  # Top
             self.enemy.center_x = random.randint(0, width)
@@ -181,7 +186,7 @@ class Enemies():
                     self.bullets.append(new_bullet)
                 
                 elif self.enemy.texture == self.monster_high_damage_texture:
-                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y, high= True)
+                    new_bullet = shoot.Enemy_Bullet_High_Damage(angle, bullet_x, bullet_y)
                     self.bullets.append(new_bullet)
         
         # Shooting Cooldown

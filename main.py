@@ -34,7 +34,7 @@ class Gameview(arcade.Window):
         self.mouse_circle_center_x = width // 2
         self.mouse_circle_center_y = height // 2
         self.mouse_circle_radius = 10
-        self.mouse_circle_color = arcade.color.PINK
+        self.mouse_circle_color = arcade.color.FELDSPAR
 
         self.enemies = []
         self.particles = []
@@ -335,10 +335,19 @@ class Gameview(arcade.Window):
                 if arcade.check_for_collision(player_sprite, enemy_bullet.bullet):
                     if self.player_shield:
                         player_died = self.player.take_damage(self.player_damage)
-                    elif enemy_bullet.high_damage():
-                        player_died = self.player.take_damage(50)
                     else:
                         player_died = self.player.take_damage(10) 
+                    enemy_bullets_to_remove.append(enemy_bullet)
+                    
+                    if player_died:
+                        print("Game Over! Player died!")
+                        
+            elif isinstance(enemy_bullet, shoot.Enemy_Bullet_High_Damage):
+                if arcade.check_for_collision(player_sprite, enemy_bullet.bullet):
+                    if self.player_shield:
+                        player_died = self.player.take_damage(self.player_damage)
+                    else:
+                        player_died = self.player.take_damage(50) 
                     enemy_bullets_to_remove.append(enemy_bullet)
                     
                     if player_died:
