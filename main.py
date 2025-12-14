@@ -23,7 +23,7 @@ class Gameview(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, False, True)
         
-        self.background = arcade.Sprite(resource_path("assets/background.png"))
+        self.background = arcade.Sprite(resource_path("assets/space-1.png"))
         self.update_background_size(width, height)
         
         self.set_minimum_size(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -335,6 +335,8 @@ class Gameview(arcade.Window):
                 if arcade.check_for_collision(player_sprite, enemy_bullet.bullet):
                     if self.player_shield:
                         player_died = self.player.take_damage(self.player_damage)
+                    elif enemy_bullet.high_damage():
+                        player_died = self.player.take_damage(50)
                     else:
                         player_died = self.player.take_damage(10) 
                     enemy_bullets_to_remove.append(enemy_bullet)

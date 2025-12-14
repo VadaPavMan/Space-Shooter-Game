@@ -16,7 +16,7 @@ class Player():
         self.rapid_texture = arcade.load_texture(resource_path("assets/hero_spaceship/rapidfire.png"))
         self.dual_shooter_texture = arcade.load_texture(resource_path("assets/hero_spaceship/dual_shooter.png"))
         self.allin1_texture = arcade.load_texture(resource_path("assets/hero_spaceship/allin1.png"))
-
+        
         self.player = arcade.Sprite(path_or_texture= self.full_health_texture, scale= self.radius)
 
         self.player.center_x = width // 2

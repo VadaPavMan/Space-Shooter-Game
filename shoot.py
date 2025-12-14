@@ -3,6 +3,7 @@ import arcade
 import math
 from resources import resource_path
 import random
+import enemies
 
 class Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
@@ -29,26 +30,36 @@ class Bullet(arcade.Sprite):
 
 
 class Enemy_Bullet(arcade.Sprite):
-    def __init__(self, angle, x, y):
+    def __init__(self, angle, x, y, speed= 4):
         self.radius = 0.2
         angle_rad = math.radians(angle)
         forward_offset = 10
         forward_x = math.sin(angle_rad) * forward_offset
         forward_y = math.cos(angle_rad) * forward_offset
-        
-        self.bullet = arcade.Sprite("assets/bullets/02.png", self.radius)
+        self.high = False
+        self.normal_bullet = arcade.load_texture(resource_path("assets/bullets/02.png"))
+        self.high_damage_bullet = arcade.load_texture(resource_path("assets/bullets/19.png"))
+        self.bullet = arcade.Sprite(self.normal_bullet, self.radius)
         self.bullet.center_x = x + forward_x
         self.bullet.center_y = y + forward_y
         self.bullet.angle = angle
         
-        self.speed = 4
-        
+        if not speed:
+            self.speed = 4
+        else:
+            self.speed = speed
+            
+    def high_damage(self):
+        if enemies.Enemies.high_damage_enemy:
+            self.high = True
+            return True
+        else:
+            return False      
         
     def update(self):
         angle_rad = math.radians(self.bullet.angle)
         self.bullet.center_x += math.sin(angle_rad) * self.speed
         self.bullet.center_y += math.cos(angle_rad) * self.speed
-    
     def draw(self):
         arcade.draw_sprite(self.bullet)
     

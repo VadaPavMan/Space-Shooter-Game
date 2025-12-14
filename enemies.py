@@ -11,25 +11,38 @@ class Enemies():
         # Textures
         self.crab_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_crab.png"))
         self.monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_monster.png"))
+        self.monster_high_damage_texture = arcade.load_texture(resource_path("assets/enemies_ship/high_damage_enemy.png"))
+        self.monster_speedshooter_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_speed_shooter.png"))
         self.big_monster_texture = arcade.load_texture(resource_path("assets/enemies_ship/enemy_big_monster.png"))
         
+        
+        check_speed_monster = False
+        self.high_damage_monster = False
         # Choose Enemy To Spawn
         self.choose = random.randint(1, 10)
         self.scale = 1 # Default 
         if self.choose <= 4:
             self.scale = 1.5
             self.enemy = arcade.Sprite(self.crab_texture, self.scale)
-        elif self.choose <= 7:
-            self.scale = 1.8
+        elif self.choose <= 5:
+            self.scale = 1
             self.enemy = arcade.Sprite(self.monster_texture, self.scale)
         else:
-            self.choose = random.randint(1, 3)
+            self.choose = random.randint(4, 4)
             if self.choose == 1:
                 self.scale = 1.5
                 self.enemy = arcade.Sprite(self.crab_texture, self.scale)
             elif self.choose == 2:
-                self.scale = 1.8
+                self.scale = 1
                 self.enemy = arcade.Sprite(self.monster_texture, self.scale)
+            elif self.choose == 3:
+                self.scale = 1.4
+                self.enemy = arcade.Sprite(self.monster_speedshooter_texture, self.scale)
+                check_speed_monster = True
+            elif self.choose == 4:
+                self.scale = 0.8
+                self.enemy = arcade.Sprite(self.monster_high_damage_texture, self.scale)
+                self.high_damage_monster = True
             else:
                 self.scale = 0.7
                 self.enemy = arcade.Sprite(self.big_monster_texture, self.scale)
@@ -63,6 +76,9 @@ class Enemies():
         
         self.shoot_active = True
         self.shoot_cooldown = 2
+        if check_speed_monster:
+            self.shoot_cooldown = 0.8
+            check_speed_monster = False
         self.shoot_timer = 0
         
         # Health System
@@ -149,7 +165,7 @@ class Enemies():
             self.enemy.center_y = height - 20
         
         # Shooting System
-        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture:
+        if self.enemy.texture == self.big_monster_texture or self.enemy.texture == self.monster_texture or self.enemy.texture == self.monster_speedshooter_texture or self.enemy.texture == self.monster_high_damage_texture:
             if self.shoot():
                 bullet_x, bullet_y = self.get_position()
                 angle = self.get_angle()
@@ -159,6 +175,14 @@ class Enemies():
                     self.bullets.append(new_bullet)
                     
                 elif self.enemy.texture == self.monster_texture:
+                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y)
+                    self.bullets.append(new_bullet)
+                    
+                elif self.enemy.texture == self.monster_speedshooter_texture:
+                    new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y, 6)
+                    self.bullets.append(new_bullet)
+                
+                elif self.enemy.texture == self.monster_high_damage_texture:
                     new_bullet = shoot.Enemy_Bullet(angle, bullet_x, bullet_y)
                     self.bullets.append(new_bullet)
         
@@ -214,3 +238,10 @@ class Enemies():
             self.shoot_active = False
             return True
         return False
+    
+    def high_damage_enemy(self):
+        if self.high_damage_monster:
+            self.high_damage_monster = False
+            return True
+        else:
+            return False
