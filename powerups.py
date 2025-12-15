@@ -18,9 +18,9 @@ class ShieldDemo(arcade.Sprite):
         
         regular_powerups = [health_texture, shield_texture]
         strong_powerups = [shield_texture, laser_texture, dual_shooter_texture]
-        ultimate_powerups = [shield_texture, laser_texture, allinone_texture]
+        ultimate_powerups = [dual_shooter_texture, laser_texture, allinone_texture]
         
-        if choose <= 5:
+        if choose <= 4:
             self.SPRITE_SHEET = random.choice(regular_powerups)
             self.filePath = self.SPRITE_SHEET
         elif choose <= 8:

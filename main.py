@@ -41,19 +41,20 @@ class Gameview(arcade.Window):
         self.bullets = []
         self.enemy_bullets = [] 
         
+        # ALl Powerups
         self.powerups = []
         self.powerups_target = 0.19
         self.powerups_increase_chance = 500
-        self.powerups_timer = 0
-        self.powerups_active = False
         self.powerup_type = ""
+        self.health_power_active = False
+        self.rapid_power_active = False
+        self.rapid_power_timer = 0
         self.dual_shoot_powerup = False
         self.dual_shoot_timer = 0
         self.player_shield = False
         self.player_damage = 10
         self.shield_timer = 0
         
-
         self.spawn_timer = 0
         self.max_enemies = 3
         self.spawn_interval = 2.0 
@@ -147,6 +148,25 @@ class Gameview(arcade.Window):
             bold=True
         )
         
+    def powerup_timer_bar(self):
+        bar_width = 200
+        bar_height = 15
+        x = 20
+        y = 20
+        
+        arcade.draw_lrbt_rectangle_filled(
+            x, x + bar_width, y, y + bar_height, 
+            arcade.color.DARK_RED
+        )
+        
+        arcade.draw_lrbt_rectangle_filled(
+            x, x+bar_width, y, y+bar_height, arcade.color.AMBER
+        )
+        
+        arcade.draw_lrbt_rectangle_outline(
+            x, x + bar_width, y, y + bar_height, 
+            arcade.color.WHITE, 2
+        )
         
     def on_draw(self):
         self.clear()
@@ -179,6 +199,10 @@ class Gameview(arcade.Window):
         
         self.draw_player_health_bar()
         self.draw_score_box()
+        
+        if (time.time() - self.shield_timer) < 15 or (time.time() - self.rapid_power_timer) < 15 or (time.time() - self.dual_shoot_timer) < 15:
+            self.powerup_timer_bar()
+            
         
     def on_resize(self, width, height):
         super().on_resize(width, height)
@@ -273,30 +297,33 @@ class Gameview(arcade.Window):
                 self.player.invincible = True
                 self.player.invincible_timer = 0.0
                 if HEALTH_POWERUP in pu.get_filePath():
-                    self.powerups_active = True
+                    self.health_power_active = True
                     self.powerup_type = pu.get_filePath()
                     heal_amount = 20
-                    if self.powerups_active:
+                    if self.health_power_active:
                         self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
-                        self.powerups_active = False
+                        self.health_power_active = False
                     print(f"Path: {pu.get_filePath()} And {HEALTH_POWERUP}")
                 elif DUALs_POWERUP in pu.get_filePath():
                     self.dual_shoot_powerup = True
                     self.dual_shoot_timer = time.time()
+                    print(f"Timer Dual: {self.dual_shoot_timer}")
+                    self.powerup_type = pu.get_filePath()
                     print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
                 elif LASER_POWERUP in pu.get_filePath():
-                    self.powerups_active = True
+                    self.rapid_power_active = True
                     self.powerup_type = pu.get_filePath()
-                    self.powerups_timer = time.time()
-                    if self.powerups_active:
+                    self.rapid_power_timer = time.time()
+                    print(f"Timer Rapid: {self.rapid_power_timer}")
+                    if self.rapid_power_active:
                         self.player.rapidfire(1)
-                        self.player.player.texture = self.player.rapid_texture
                         print("Rapid Fire Active")
-                        print(f"Timer: {self.powerups_timer}")
+                        print(f"Timer: {self.rapid_power_timer}")
                     print(f"Path: {pu.get_filePath()} And {LASER_POWERUP}")
                 elif SHIELD_POWERUP in pu.get_filePath():
                     self.player_shield = True
                     self.shield_timer = time.time()
+                    print(f"Timer Shield: {self.shield_timer}")
                     self.powerup_type = pu.get_filePath()
                     if self.player_shield:
                         self.player_damage = 0
@@ -304,8 +331,8 @@ class Gameview(arcade.Window):
                 elif ALLIN1_POWERUP in pu.get_filePath():
                     print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
                 self.player.update_texture()
-                powerups_to_remove.append(pu)
-
+                powerups_to_remove.append(pu)        
+        
         for pu in powerups_to_remove:
             if pu in self.powerups:
                 self.powerups.remove(pu)
@@ -433,15 +460,17 @@ class Gameview(arcade.Window):
             self.player.on_mouse_release()
             
     def powerup_timer(self):
-        if self.powerups_active and (time.time() - self.powerups_timer) > 15:
-            self.powerups_active = False
-            if LASER_POWERUP in self.powerup_type:
-                self.player.rapidfire(0) 
+        if self.rapid_power_active and (time.time() - self.rapid_power_timer) > 15:
+            self.player.rapidfire(0) 
+            print(f"Time Out Rapid: {time.time()}")
+            self.rapid_power_active = False
         
         if self.dual_shoot_powerup and (time.time() - self.dual_shoot_timer) > 15:
+            print(f"Time Out Dual: {time.time()}")
             self.dual_shoot_powerup = False 
         
         if self.player_shield and (time.time()- self.shield_timer) > 15:
+            print(f"Time Out Sheild: {time.time()}")
             self.player_shield = False
             self.player_damage = 10
 
