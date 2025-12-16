@@ -12,10 +12,6 @@ class ShieldDemo(arcade.Sprite):
         laser_texture = "assets/powerups/laser.png"
         allinone_texture = "assets/powerups/shield_health_max.png"
         
-        # regular_powerups = [shield_texture, shield_texture]
-        # strong_powerups = [shield_texture, shield_texture, shield_texture]
-        # ultimate_powerups = [laser_texture, health_texture, allinone_texture]
-        
         regular_powerups = [health_texture, shield_texture]
         strong_powerups = [shield_texture, laser_texture, dual_shooter_texture]
         ultimate_powerups = [dual_shooter_texture, laser_texture, allinone_texture]
@@ -29,19 +25,6 @@ class ShieldDemo(arcade.Sprite):
         else:
             self.SPRITE_SHEET = random.choice(ultimate_powerups)
             self.filePath = self.SPRITE_SHEET
-            
-            
-        # if choose <= 2:
-        #     self.SPRITE_SHEET = random.choice("assets/powerups/laser.png", "assets/powerups/health.png")
-        #     self.SPRITE_SHEET = "assets/powerups/laser.png"
-        # elif choose <= 4:
-        #     self.SPRITE_SHEET = "assets/powerups/shield.png"
-        # elif choose <= 6:
-        #     self.SPRITE_SHEET = "assets/powerups/health.png"
-        # elif choose <= 8:
-        #     self.SPRITE_SHEET = "assets/powerups/dual_shooter.png"
-        # else:
-        #     self.SPRITE_SHEET = "assets/powerups/shield_health_max.png"
                 
         self.FRAME_WIDTH = 32
         self.FRAME_HEIGHT = 32
