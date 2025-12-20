@@ -44,7 +44,7 @@ class Gameview(arcade.Window):
         
         # All Powerups
         self.powerups = []
-        self.powerups_target = 0.19
+        self.powerups_target = 0.9
         self.powerups_increase_chance = 500
         self.powerup_type = ""
         self.health_power_active = False
@@ -152,10 +152,9 @@ class Gameview(arcade.Window):
         )
         
     def draw_powerup_timer_bar(self):
-        """Draw the powerup timer bar that decreases over 15 seconds"""
         bar_width = 200
         bar_height = 15
-        x = 20
+        x = 60
         y = 20
         
         current_time = time.time()
@@ -194,22 +193,20 @@ class Gameview(arcade.Window):
                 arcade.color.WHITE, 2
             )
             
-            powerup_text = self.get_powerup_display_name()
-            arcade.draw_text(
-                powerup_text,
-                x + bar_width + 10, y + bar_height/2,
-                arcade.color.WHITE, 12,
-                anchor_x="left", anchor_y="center", bold=True
-            )
+            powerup_path = self.get_powerup_display_name()
+            self.pimage = arcade.Sprite(resource_path(powerup_path))
+            self.pimage.center_x = x - 20
+            self.pimage.center_y = bar_height + 14
+            arcade.draw_sprite(self.pimage)
             
     
     def get_powerup_display_name(self):
         if self.active_powerup_type == "rapid":
-            return "Rapid Fire"
+            return "assets/powerups/display_rapid.png"
         elif self.active_powerup_type == "dual":
-            return "Dual Shot"
+            return "assets/powerups/display_dual.png"
         elif self.active_powerup_type == "shield":
-            return "Shield"
+            return "assets/powerups/display_shield.png"
         else:
             return "Powerup"
             
