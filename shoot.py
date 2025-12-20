@@ -7,8 +7,8 @@ import enemies
 
 class Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
-        self.radius = 0.3
-        self.bullet = arcade.Sprite(resource_path("assets/bullets/06.png"), self.radius)
+        self.radius = 0.26
+        self.bullet = arcade.Sprite(resource_path("assets/bullets/08.png"), self.radius)
         self.bullet.center_x = x
         self.bullet.center_y = y
         self.bullet.angle = angle

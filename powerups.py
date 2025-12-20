@@ -58,3 +58,12 @@ class ShieldDemo(arcade.Sprite):
         
     def get_filePath(self):
         return self.filePath
+
+
+class display_power(ShieldDemo):
+    def __init__(self, x, y, type):
+        health_texture = "assets/powerups/health.png"
+        dual_shooter_texture = "assets/powerups/dual_shooter.png"
+        shield_texture = "assets/powerups/shield.png"
+        laser_texture = "assets/powerups/laser.png"
+        allinone_texture = "assets/powerups/shield_health_max.png"

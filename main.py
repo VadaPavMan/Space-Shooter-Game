@@ -18,6 +18,7 @@ DUALs_POWERUP = "dual_shooter"
 SHIELD_POWERUP = "shield"
 LASER_POWERUP = "laser"
 ALLIN1_POWERUP = "shield_health_max"
+
 class Gameview(arcade.Window):
     
     def __init__(self, width, height, title):
@@ -41,7 +42,7 @@ class Gameview(arcade.Window):
         self.bullets = []
         self.enemy_bullets = [] 
         
-        # ALl Powerups
+        # All Powerups
         self.powerups = []
         self.powerups_target = 0.19
         self.powerups_increase_chance = 500
@@ -54,6 +55,10 @@ class Gameview(arcade.Window):
         self.player_shield = False
         self.player_damage = 10
         self.shield_timer = 0
+        
+        # Powerup timer tracking
+        self.active_powerup_end_time = 0
+        self.active_powerup_type = ""
         
         self.spawn_timer = 0
         self.max_enemies = 3
@@ -106,8 +111,6 @@ class Gameview(arcade.Window):
                          width=bar_width, align="center",
                          anchor_x="center", anchor_y="center", bold=True)
         
-                
-    
     def draw_player_health_bar(self):
         bar_width = 200
         bar_height = 20
@@ -148,26 +151,68 @@ class Gameview(arcade.Window):
             bold=True
         )
         
-    def powerup_timer_bar(self):
+    def draw_powerup_timer_bar(self):
+        """Draw the powerup timer bar that decreases over 15 seconds"""
         bar_width = 200
         bar_height = 15
         x = 20
         y = 20
         
-        arcade.draw_lrbt_rectangle_filled(
-            x, x + bar_width, y, y + bar_height, 
-            arcade.color.DARK_RED
-        )
+        current_time = time.time()
+        remaining_time = 0
         
-        arcade.draw_lrbt_rectangle_filled(
-            x, x+bar_width, y, y+bar_height, arcade.color.AMBER
-        )
-        
-        arcade.draw_lrbt_rectangle_outline(
-            x, x + bar_width, y, y + bar_height, 
-            arcade.color.WHITE, 2
-        )
-        
+        if self.active_powerup_end_time > current_time:
+            remaining_time = self.active_powerup_end_time - current_time
+            remaining_ratio = remaining_time / 15.0  
+            current_bar_width = bar_width * remaining_ratio
+            
+            if self.active_powerup_type == "rapid":
+                bar_color = arcade.color.DARK_PASTEL_GREEN
+                bg_bar_color = arcade.color.DARK_GREEN
+            elif self.active_powerup_type == "dual":
+                bar_color = arcade.color.AMBER
+                bg_bar_color = arcade.color.COFFEE
+            elif self.active_powerup_type == "shield":
+                bar_color = arcade.color.CELESTIAL_BLUE
+                bg_bar_color = arcade.color.DARK_MIDNIGHT_BLUE
+            else:
+                bar_color = arcade.color.AMBER
+                bg_bar_color = arcade.color.DARK_RED
+            
+            arcade.draw_lrbt_rectangle_filled(
+                x, x + bar_width, y, y + bar_height, 
+                bg_bar_color
+            )
+            
+            arcade.draw_lrbt_rectangle_filled(
+                x, x + current_bar_width, y, y + bar_height, 
+                bar_color
+            )
+            
+            arcade.draw_lrbt_rectangle_outline(
+                x, x + bar_width, y, y + bar_height, 
+                arcade.color.WHITE, 2
+            )
+            
+            powerup_text = self.get_powerup_display_name()
+            arcade.draw_text(
+                powerup_text,
+                x + bar_width + 10, y + bar_height/2,
+                arcade.color.WHITE, 12,
+                anchor_x="left", anchor_y="center", bold=True
+            )
+            
+    
+    def get_powerup_display_name(self):
+        if self.active_powerup_type == "rapid":
+            return "Rapid Fire"
+        elif self.active_powerup_type == "dual":
+            return "Dual Shot"
+        elif self.active_powerup_type == "shield":
+            return "Shield"
+        else:
+            return "Powerup"
+            
     def on_draw(self):
         self.clear()
         arcade.draw_sprite(self.background)
@@ -200,10 +245,12 @@ class Gameview(arcade.Window):
         self.draw_player_health_bar()
         self.draw_score_box()
         
-        if (time.time() - self.shield_timer) < 15 or (time.time() - self.rapid_power_timer) < 15 or (time.time() - self.dual_shoot_timer) < 15:
-            self.powerup_timer_bar()
+        current_time = time.time()
+        if (self.rapid_power_active and current_time < self.rapid_power_timer + 15) or \
+           (self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15) or \
+           (self.player_shield and current_time < self.shield_timer + 15):
+            self.draw_powerup_timer_bar()
             
-        
     def on_resize(self, width, height):
         super().on_resize(width, height)
         self.update_background_size(width, height)
@@ -212,7 +259,9 @@ class Gameview(arcade.Window):
         self.player.update(self.width, self.height, delta_time)
         
         self.powerup_timer()
-        # Player SHooting
+        self.update_active_powerup()
+        
+        # Player Shooting
         if self.player.shoot():
             bullet_x, bullet_y = self.player.get_position()
             angle = self.player.get_angle()
@@ -307,6 +356,8 @@ class Gameview(arcade.Window):
                 elif DUALs_POWERUP in pu.get_filePath():
                     self.dual_shoot_powerup = True
                     self.dual_shoot_timer = time.time()
+                    self.active_powerup_type = "dual"
+                    self.active_powerup_end_time = self.dual_shoot_timer + 15
                     print(f"Timer Dual: {self.dual_shoot_timer}")
                     self.powerup_type = pu.get_filePath()
                     print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
@@ -314,6 +365,8 @@ class Gameview(arcade.Window):
                     self.rapid_power_active = True
                     self.powerup_type = pu.get_filePath()
                     self.rapid_power_timer = time.time()
+                    self.active_powerup_type = "rapid"
+                    self.active_powerup_end_time = self.rapid_power_timer + 15
                     print(f"Timer Rapid: {self.rapid_power_timer}")
                     if self.rapid_power_active:
                         self.player.rapidfire(1)
@@ -323,6 +376,8 @@ class Gameview(arcade.Window):
                 elif SHIELD_POWERUP in pu.get_filePath():
                     self.player_shield = True
                     self.shield_timer = time.time()
+                    self.active_powerup_type = "shield"
+                    self.active_powerup_end_time = self.shield_timer + 15
                     print(f"Timer Shield: {self.shield_timer}")
                     self.powerup_type = pu.get_filePath()
                     if self.player_shield:
@@ -464,15 +519,37 @@ class Gameview(arcade.Window):
             self.player.rapidfire(0) 
             print(f"Time Out Rapid: {time.time()}")
             self.rapid_power_active = False
+            self.active_powerup_type = ""
         
         if self.dual_shoot_powerup and (time.time() - self.dual_shoot_timer) > 15:
             print(f"Time Out Dual: {time.time()}")
             self.dual_shoot_powerup = False 
+            self.active_powerup_type = ""
         
         if self.player_shield and (time.time()- self.shield_timer) > 15:
             print(f"Time Out Sheild: {time.time()}")
             self.player_shield = False
             self.player_damage = 10
+            self.active_powerup_type = ""
+    
+    def update_active_powerup(self):
+        current_time = time.time()
+        
+        active_types = []
+        if self.rapid_power_active and current_time < self.rapid_power_timer + 15:
+            active_types.append(("rapid", self.rapid_power_timer + 15))
+        if self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15:
+            active_types.append(("dual", self.dual_shoot_timer + 15))
+        if self.player_shield and current_time < self.shield_timer + 15:
+            active_types.append(("shield", self.shield_timer + 15))
+        
+        if active_types:
+            active_types.sort(key=lambda x: x[1], reverse=True)
+            self.active_powerup_type = active_types[0][0]
+            self.active_powerup_end_time = active_types[0][1]
+        else:
+            self.active_powerup_type = ""
+            self.active_powerup_end_time = 0
 
 
 if __name__ == "__main__":
