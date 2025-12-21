@@ -55,6 +55,8 @@ class Gameview(arcade.Window):
         self.player_shield = False
         self.player_damage = 10
         self.shield_timer = 0
+        self.superultra_active = False
+        self.superultra_timer = 0
         
         # Powerup timer tracking
         self.active_powerup_end_time = 0
@@ -207,8 +209,10 @@ class Gameview(arcade.Window):
             return "assets/powerups/display_dual.png"
         elif self.active_powerup_type == "shield":
             return "assets/powerups/display_shield.png"
+        elif self.active_powerup_type == "super":
+            return "assets/powerups/display_allin1.png"
         else:
-            return "Powerup"
+            return
             
     def on_draw(self):
         self.clear()
@@ -352,6 +356,8 @@ class Gameview(arcade.Window):
                     print(f"Path: {pu.get_filePath()} And {HEALTH_POWERUP}")
                 elif DUALs_POWERUP in pu.get_filePath():
                     self.dual_shoot_powerup = True
+                    self.rapid_power_active = False
+                    if self.rapid_power_active == False: self.player.rapidfire(0)
                     self.dual_shoot_timer = time.time()
                     self.active_powerup_type = "dual"
                     self.active_powerup_end_time = self.dual_shoot_timer + 15
@@ -360,6 +366,7 @@ class Gameview(arcade.Window):
                     print(f"Path: {pu.get_filePath()} And {DUALs_POWERUP}")
                 elif LASER_POWERUP in pu.get_filePath():
                     self.rapid_power_active = True
+                    self.dual_shoot_powerup = False
                     self.powerup_type = pu.get_filePath()
                     self.rapid_power_timer = time.time()
                     self.active_powerup_type = "rapid"
@@ -381,6 +388,25 @@ class Gameview(arcade.Window):
                         self.player_damage = 0
                     print(f"Path: {pu.get_filePath()} And {SHIELD_POWERUP}")
                 elif ALLIN1_POWERUP in pu.get_filePath():
+                    self.superultra_active = True
+                    self.player_shield = self.rapid_power_active = self.dual_shoot_powerup = self.health_power_active = True
+                    self.active_powerup_type = "superultra"
+                    self.superultra_timer = time.time()
+                    self.active_powerup_end_time = self.superultra_timer + 30
+                    
+                    self.shield_timer = time.time()
+                    self.rapid_power_timer = time.time()
+                    self.dual_shoot_timer = time.time()
+                    
+                    heal_amount = 50
+                    
+                    if self.player_shield:
+                        self.player_damage = 0
+                    
+                    self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
+                    self.player.rapidfire(1)
+                        
+                        
                     print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
                 self.player.update_texture()
                 powerups_to_remove.append(pu)        
@@ -528,11 +554,22 @@ class Gameview(arcade.Window):
             self.player_shield = False
             self.player_damage = 10
             self.active_powerup_type = ""
+        
+        if self.superultra_active and (time.time() - self.superultra_timer) > 30:
+            print(f"Time Out Super: {time.time()}")
+            self.superultra_active = False
+            self.player_shield = self.rapid_power_active = self.dual_shoot_powerup = self.health_power_active = False
+            self.player_damage = 10
+            self.player.rapidfire(0)
+            self.active_powerup_type = ""
+            
     
     def update_active_powerup(self):
         current_time = time.time()
         
         active_types = []
+        if self.superultra_active and current_time < self.superultra_timer + 30:
+            active_types.append(("super", self.superultra_timer+30))
         if self.rapid_power_active and current_time < self.rapid_power_timer + 15:
             active_types.append(("rapid", self.rapid_power_timer + 15))
         if self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15:
