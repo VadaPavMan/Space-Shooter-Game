@@ -272,7 +272,7 @@ class Gameview(arcade.Window):
         self.powerup_timer()
         self.update_active_powerup()
         
-        # Player Shooting
+        # Player SHooting
         if self.player.shoot():
             bullet_x, bullet_y = self.player.get_position()
             angle = self.player.get_angle()

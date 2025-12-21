@@ -12,13 +12,13 @@ class ShieldDemo(arcade.Sprite):
         laser_texture = "assets/powerups/laser.png"
         allinone_texture = "assets/powerups/max.png"
         
-        regular_powerups = [allinone_texture, allinone_texture]
-        strong_powerups = [allinone_texture, allinone_texture, allinone_texture]
-        ultimate_powerups = [allinone_texture, allinone_texture, allinone_texture]
+        # regular_powerups = [allinone_texture, allinone_texture]
+        # strong_powerups = [allinone_texture, allinone_texture, allinone_texture]
+        # ultimate_powerups = [allinone_texture, allinone_texture, allinone_texture]
         
-        # regular_powerups = [health_texture, shield_texture]
-        # strong_powerups = [shield_texture, laser_texture, dual_shooter_texture]
-        # ultimate_powerups = [dual_shooter_texture, laser_texture, allinone_texture]
+        regular_powerups = [health_texture, shield_texture]
+        strong_powerups = [shield_texture, laser_texture, dual_shooter_texture]
+        ultimate_powerups = [dual_shooter_texture, laser_texture, allinone_texture]
         
         if choose <= 4:
             self.SPRITE_SHEET = random.choice(regular_powerups)
