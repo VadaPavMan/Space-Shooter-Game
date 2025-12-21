@@ -17,7 +17,7 @@ HEALTH_POWERUP = "health"
 DUALs_POWERUP = "dual_shooter"
 SHIELD_POWERUP = "shield"
 LASER_POWERUP = "laser"
-ALLIN1_POWERUP = "shield_health_max"
+ALLIN1_POWERUP = "max"
 
 class Gameview(arcade.Window):
     
@@ -161,10 +161,16 @@ class Gameview(arcade.Window):
         
         current_time = time.time()
         remaining_time = 0
+        bar_color = arcade.color.AMBER
+        bg_bar_color = arcade.color.DARK_RED
         
         if self.active_powerup_end_time > current_time:
             remaining_time = self.active_powerup_end_time - current_time
-            remaining_ratio = remaining_time / 15.0  
+            if self.superultra_active:
+                remaining_ratio = remaining_time / 30.0
+                bar_width = 400
+            else:
+                remaining_ratio = remaining_time / 15.0  
             current_bar_width = bar_width * remaining_ratio
             
             if self.active_powerup_type == "rapid":
@@ -176,6 +182,9 @@ class Gameview(arcade.Window):
             elif self.active_powerup_type == "shield":
                 bar_color = arcade.color.CELESTIAL_BLUE
                 bg_bar_color = arcade.color.DARK_MIDNIGHT_BLUE
+            elif self.active_powerup_type == "super":
+                bar_color = arcade.color.CADMIUM_ORANGE
+                bg_bar_color = arcade.color.SEPIA
             else:
                 bar_color = arcade.color.AMBER
                 bg_bar_color = arcade.color.DARK_RED
@@ -212,7 +221,7 @@ class Gameview(arcade.Window):
         elif self.active_powerup_type == "super":
             return "assets/powerups/display_allin1.png"
         else:
-            return
+            return "Powerup"
             
     def on_draw(self):
         self.clear()
@@ -249,7 +258,8 @@ class Gameview(arcade.Window):
         current_time = time.time()
         if (self.rapid_power_active and current_time < self.rapid_power_timer + 15) or \
            (self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15) or \
-           (self.player_shield and current_time < self.shield_timer + 15):
+            (self.player_shield and current_time < self.shield_timer + 15) or \
+            (self.superultra_active and current_time < self.superultra_timer + 30):
             self.draw_powerup_timer_bar()
             
     def on_resize(self, width, height):
@@ -390,10 +400,9 @@ class Gameview(arcade.Window):
                 elif ALLIN1_POWERUP in pu.get_filePath():
                     self.superultra_active = True
                     self.player_shield = self.rapid_power_active = self.dual_shoot_powerup = self.health_power_active = True
-                    self.active_powerup_type = "superultra"
+                    self.active_powerup_type = "super"
                     self.superultra_timer = time.time()
                     self.active_powerup_end_time = self.superultra_timer + 30
-                    
                     self.shield_timer = time.time()
                     self.rapid_power_timer = time.time()
                     self.dual_shoot_timer = time.time()
@@ -405,8 +414,7 @@ class Gameview(arcade.Window):
                     
                     self.player.current_health = min(self.player.max_health, self.player.current_health + heal_amount)
                     self.player.rapidfire(1)
-                        
-                        
+                    
                     print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
                 self.player.update_texture()
                 powerups_to_remove.append(pu)        
@@ -538,44 +546,48 @@ class Gameview(arcade.Window):
             self.player.on_mouse_release()
             
     def powerup_timer(self):
-        if self.rapid_power_active and (time.time() - self.rapid_power_timer) > 15:
-            self.player.rapidfire(0) 
-            print(f"Time Out Rapid: {time.time()}")
-            self.rapid_power_active = False
-            self.active_powerup_type = ""
-        
-        if self.dual_shoot_powerup and (time.time() - self.dual_shoot_timer) > 15:
-            print(f"Time Out Dual: {time.time()}")
-            self.dual_shoot_powerup = False 
-            self.active_powerup_type = ""
-        
-        if self.player_shield and (time.time()- self.shield_timer) > 15:
-            print(f"Time Out Sheild: {time.time()}")
-            self.player_shield = False
-            self.player_damage = 10
-            self.active_powerup_type = ""
-        
-        if self.superultra_active and (time.time() - self.superultra_timer) > 30:
-            print(f"Time Out Super: {time.time()}")
-            self.superultra_active = False
-            self.player_shield = self.rapid_power_active = self.dual_shoot_powerup = self.health_power_active = False
-            self.player_damage = 10
-            self.player.rapidfire(0)
-            self.active_powerup_type = ""
+        if not self.superultra_active:
+            if self.rapid_power_active and (time.time() - self.rapid_power_timer) > 15:
+                self.player.rapidfire(0) 
+                print(f"Time Out Rapid: {time.time()}")
+                self.rapid_power_active = False
+                self.active_powerup_type = ""
+            
+            if self.dual_shoot_powerup and (time.time() - self.dual_shoot_timer) > 15:
+                print(f"Time Out Dual: {time.time()}")
+                self.dual_shoot_powerup = False 
+                self.active_powerup_type = ""
+                
+            if self.player_shield and (time.time()- self.shield_timer) > 15:
+                print(f"Time Out Sheild: {time.time()}")
+                self.player_shield = False
+                self.player_damage = 10
+                self.active_powerup_type = ""
+        else:
+            if self.superultra_active and (time.time() - self.superultra_timer) > 30:
+                print(f"Time Out Super: {time.time()}")
+                self.superultra_active = False
+                self.player_shield = self.rapid_power_active = self.dual_shoot_powerup = self.health_power_active = False
+                self.player_damage = 10
+                self.player.rapidfire(0)
+                self.active_powerup_type = ""
             
     
     def update_active_powerup(self):
         current_time = time.time()
         
         active_types = []
-        if self.superultra_active and current_time < self.superultra_timer + 30:
-            active_types.append(("super", self.superultra_timer+30))
-        if self.rapid_power_active and current_time < self.rapid_power_timer + 15:
-            active_types.append(("rapid", self.rapid_power_timer + 15))
-        if self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15:
-            active_types.append(("dual", self.dual_shoot_timer + 15))
-        if self.player_shield and current_time < self.shield_timer + 15:
-            active_types.append(("shield", self.shield_timer + 15))
+        
+        if self.superultra_active:
+            if self.superultra_active and current_time < self.superultra_timer + 30:
+                active_types.append(("super", self.superultra_timer + 30))
+        else:
+            if self.rapid_power_active and current_time < self.rapid_power_timer + 15:
+                active_types.append(("rapid", self.rapid_power_timer + 15))
+            if self.dual_shoot_powerup and current_time < self.dual_shoot_timer + 15:
+                active_types.append(("dual", self.dual_shoot_timer + 15))
+            if self.player_shield and current_time < self.shield_timer + 15:
+                active_types.append(("shield", self.shield_timer + 15))
         
         if active_types:
             active_types.sort(key=lambda x: x[1], reverse=True)
