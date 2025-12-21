@@ -45,7 +45,7 @@ class Gameview(arcade.Window):
 
         # All Powerups
         self.powerups = []
-        self.powerups_target = 0.9
+        self.powerups_target = 0.09
         self.powerups_increase_chance = 500
         self.powerup_type = ""
         self.health_power_active = False
