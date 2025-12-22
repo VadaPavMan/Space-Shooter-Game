@@ -10,6 +10,10 @@ class Particle:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.reset()
+    
+    def update_screen_size(self, screen_width, screen_height):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
 
     def reset(self):
         self.start_edge = random.randint(0, 3)  # 0=Top, 1=Right, 2=Bottom, 3=Left

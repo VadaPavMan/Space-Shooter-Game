@@ -8,6 +8,7 @@ import shoot
 import enemies
 import powerups
 import time
+import menu
 
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
@@ -20,21 +21,18 @@ LASER_POWERUP = "laser"
 ALLIN1_POWERUP = "max"
 
 
-class Gameview(arcade.Window):
+class Gameview(arcade.View):
 
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title, False, True)
+    def __init__(self, window):
+        super().__init__(window)
 
         self.background = arcade.Sprite(resource_path("assets/space-1.png"))
-        self.update_background_size(width, height)
+        self.update_background_size(window.width, window.height)
 
-        self.set_minimum_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.set_mouse_visible(False)
-
-        self.player = __hero__.Player(width, height)
+        self.player = __hero__.Player(window.width, window.height)
         # Mouse Cursor
-        self.mouse_circle_center_x = width // 2
-        self.mouse_circle_center_y = height // 2
+        self.mouse_circle_center_x = window.width // 2
+        self.mouse_circle_center_y = window.height // 2
         self.mouse_circle_radius = 10
         self.mouse_circle_color = arcade.color.FELDSPAR
 
@@ -77,16 +75,62 @@ class Gameview(arcade.Window):
         self.fade_effect = True
 
         for _ in range(self.max_enemies):
-            self.enemies.append(enemies.Enemies(width, height))
+            self.enemies.append(enemies.Enemies(window.width, window.height))
 
         for _ in range(5):
-            self.particles.append(particles.Particle(width, height))
+            self.particles.append(particles.Particle(window.width, window.height))
 
     def update_background_size(self, width, height):
         self.background.center_x = width // 2
         self.background.center_y = height // 2
         self.background.width = width
         self.background.height = height
+
+    def on_show_view(self):
+        self.window.set_mouse_visible(False)
+        self.update_background_size(self.window.width, self.window.height)
+        
+        for particle in self.particles:
+            particle.update_screen_size(self.window.width, self.window.height)
+
+    def reset_game(self):
+        self.player = __hero__.Player(self.window.width, self.window.height)
+        self.enemies.clear()
+        self.particles.clear()
+        self.bullets.clear()
+        self.enemy_bullets.clear()
+        self.powerups.clear()
+
+        self.health_power_active = False
+        self.rapid_power_active = False
+        self.rapid_power_timer = 0
+        self.dual_shoot_powerup = False
+        self.dual_shoot_timer = 0
+        self.player_shield = False
+        self.player_damage = 10
+        self.shield_timer = 0
+        self.superultra_active = False
+        self.superultra_timer = 0
+        self.active_powerup_end_time = 0
+        self.active_powerup_type = ""
+
+        self.spawn_timer = 0
+        self.max_enemies = 3
+        self.spawn_interval = 2.0
+        self.score = 0
+        self.TARGET_TO_INCREASE_ENEMIES = 200
+        self.TARGET_TO_DECREASE_INTERVAL = 300
+
+        self.fade_alpha = 255
+        self.fade_timer = 0
+        self.fade_duration = 1.0
+        self.fade_effect = True
+
+        for _ in range(self.max_enemies):
+            self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
+
+        for _ in range(5):
+            self.particles.append(particles.Particle(self.window.width, self.window.height))
 
     def draw_score_box(self):
         # Score Box
@@ -275,6 +319,9 @@ class Gameview(arcade.Window):
     def on_resize(self, width, height):
         super().on_resize(width, height)
         self.update_background_size(width, height)
+        
+        for particle in self.particles:
+            particle.update_screen_size(width, height)
 
     def on_update(self, delta_time):
         
@@ -567,7 +614,11 @@ class Gameview(arcade.Window):
             particle.update()
 
     def on_key_press(self, key, modifiers):
-        self.player.on_key_press(key, modifiers)
+        if key == arcade.key.ESCAPE:
+            pause_view = menu.PauseMenuView(self)
+            self.window.show_view(pause_view)
+        else:
+            self.player.on_key_press(key, modifiers)
 
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
@@ -641,5 +692,8 @@ class Gameview(arcade.Window):
 
 
 if __name__ == "__main__":
-    game = Gameview(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
+    window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, fullscreen=True, resizable=True)
+    game_view = Gameview(window)
+    start_menu = menu.StartMenuView(game_view)
+    window.show_view(start_menu)
     arcade.run()
