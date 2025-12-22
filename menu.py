@@ -63,7 +63,10 @@ class StartMenuView(arcade.View):
         self.mouse_y = 0
         
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.BLACK)
+        self.background = arcade.Sprite(resource_path("assets/space-1.png"))
+        self.background.center_x = self.width // 2
+        self.background.center_y = self.height // 2
+        self.background.alpha = 100
         self.window.set_mouse_visible(True)
         self.create_buttons()
     
@@ -87,7 +90,7 @@ class StartMenuView(arcade.View):
     
     def on_draw(self):
         self.clear()
-        
+        arcade.draw_sprite(self.background)
         arcade.draw_text(
             "SPACE SHOOTER",
             self.window.width // 2,
