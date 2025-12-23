@@ -72,10 +72,10 @@ class StartMenuView(arcade.View):
     
     def create_buttons(self):
         center_x = self.window.width // 2
+        start_y = self.window.height // 2 + 80
         button_width = 250
         button_height = 60
         button_spacing = 80
-        start_y = self.window.height // 2 + 80
         
         self.buttons = [
             Button(center_x, start_y, button_width, button_height, 
@@ -152,7 +152,7 @@ class PauseMenuView(arcade.View):
             Button(center_x, start_y - button_spacing, button_width, button_height, 
                    "NEW GAME", arcade.color.DARK_BLUE, arcade.color.BLUE),
             Button(center_x, start_y - button_spacing * 2, button_width, button_height, 
-                   "EXIT", arcade.color.DARK_RED, arcade.color.RED)
+                   "EXIT MENU", arcade.color.DARK_RED, arcade.color.RED)
         ]
     
     def on_draw(self):
@@ -196,7 +196,8 @@ class PauseMenuView(arcade.View):
             self.window.show_view(countdown_view)
             
         elif self.buttons[2].is_hovered(x, y):
-            arcade.exit()
+            self.game_view.reset_game()
+            self.window.show_view(StartMenuView(self))
     
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
