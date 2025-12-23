@@ -1,4 +1,4 @@
-# 🚀 Space Shooter Game Using Arcade Lib
+# 🚀 Galactic Combat, A Game Made Using Arcade Library
 
 [![logo](assets/arcade.webp)](https://api.arcade.academy/en/stable/)
 
