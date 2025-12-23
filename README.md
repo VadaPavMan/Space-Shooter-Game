@@ -7,6 +7,11 @@ This is a fun and exciting 2D Space Shooter Game developed using the Arcade libr
 
 ![imgC](assets/image.png)
 
+# Alpha Version 1.0:
+- Scoring System
+- Multiple Enemies
+- Multiple Powerups
+- Simple Menu To Navigate
 
 # 🕹️ Preview:
 ![preview](assets/preview.gif)
