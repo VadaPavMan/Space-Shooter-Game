@@ -619,13 +619,6 @@ class Gameview(arcade.View):
         # Check Death
         is_dead = self.player.get_current_health()
         if is_dead <= 0:
-            self.fade_timer += delta_time
-            self.fade_alpha = 0
-            self.fade_timer = 0.0
-            progress = self.fade_timer / self.fade_duration+2.0
-            self.fade_alpha = int(255 * progress)
-            if self.fade_timer >= self.fade_duration+2.0:
-                self.fade_alpha = 255
             pause_view = menu.PauseMenuView(self, True)
             self.window.show_view(pause_view)
             

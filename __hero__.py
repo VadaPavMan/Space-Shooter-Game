@@ -62,6 +62,9 @@ class Player:
         self.invincible_duration = 1.0
 
     def draw(self):
+        if not self.is_alive():
+            return
+        
         if self.invincible:
             if int(self.invincible_timer * 10) % 2 == 0:
                 arcade.draw_sprite(self.player)
@@ -117,7 +120,7 @@ class Player:
             if self.invincible_timer >= self.invincible_duration:
                 self.invincible = False
                 self.invincible_timer = 0
-
+        
         self.player.update()
 
     def update_texture(self):
