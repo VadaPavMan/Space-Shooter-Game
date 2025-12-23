@@ -2,6 +2,7 @@ import config
 import arcade
 from resources import resource_path
 import time
+import main
 
 class Button:
     def __init__(self, x, y, width, height, text, color, hover_color):
@@ -128,10 +129,10 @@ class StartMenuView(arcade.View):
 
 
 class PauseMenuView(arcade.View):
-    def __init__(self, game_view):
+    def __init__(self, game_view, dead= False):
         super().__init__()
         self.game_view = game_view
-        
+        self.is_dead = dead
         self.mouse_x = 0
         self.mouse_y = 0
         
@@ -158,6 +159,11 @@ class PauseMenuView(arcade.View):
     def on_draw(self):
         self.game_view.on_draw()
         
+        if self.is_dead:
+            text = "GAME OVER"
+        else:
+            text = "PAUSED"
+        
         arcade.draw_lrbt_rectangle_filled(
             0, self.window.width,
             0, self.window.height,
@@ -165,7 +171,7 @@ class PauseMenuView(arcade.View):
         )
         
         arcade.draw_text(
-            "PAUSED",
+            text,
             self.window.width // 2,
             self.window.height - 150,
             arcade.color.YELLOW,
@@ -175,8 +181,13 @@ class PauseMenuView(arcade.View):
             bold=True
         )
         
-        for button in self.buttons:
-            button.draw()
+        if self.is_dead:
+            self.buttons[1].draw()
+            self.buttons[2].draw()
+        else:
+            self.buttons[0].draw()
+            self.buttons[1].draw()
+            self.buttons[2].draw()
     
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse_x = x
@@ -186,7 +197,7 @@ class PauseMenuView(arcade.View):
             button.update_hover(x, y)
     
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.buttons[0].is_hovered(x, y):
+        if not self.is_dead and self.buttons[0].is_hovered(x, y):
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
             
@@ -197,10 +208,10 @@ class PauseMenuView(arcade.View):
             
         elif self.buttons[2].is_hovered(x, y):
             self.game_view.reset_game()
-            self.window.show_view(StartMenuView(self))
+            self.window.show_view(StartMenuView(self.game_view))
     
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.ESCAPE:
+        if key == arcade.key.ESCAPE and not self.is_dead:
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
 

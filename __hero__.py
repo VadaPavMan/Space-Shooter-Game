@@ -196,7 +196,6 @@ class Player:
 
             if self.current_health < 0:
                 self.current_health = 0
-
             self.update_texture()
             return self.current_health <= 0
 
@@ -205,6 +204,9 @@ class Player:
 
     def get_health(self):
         return self.current_health, self.max_health
+    
+    def get_current_health(self):
+        return self.current_health
 
     def rapidfire(self, num):
         if num:
