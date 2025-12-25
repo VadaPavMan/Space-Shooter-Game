@@ -29,6 +29,6 @@ This is a fun and exciting 2D Space Shooter Game developed using the Arcade libr
 - Will Use Webassembly For Mobile Platforms And Online Browser Gameplay
 
 Feel free to check out the code and contribute!
-Changes in progress...
+
 
 
