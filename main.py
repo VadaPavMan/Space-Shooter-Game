@@ -12,7 +12,7 @@ import menu
 
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
-WINDOW_TITLE = "Space Shooter"
+WINDOW_TITLE = "Galactic Combat"
 
 HEALTH_POWERUP = "health"
 DUALs_POWERUP = "dual_shooter"
@@ -26,7 +26,9 @@ class Gameview(arcade.View):
     def __init__(self, window):
         super().__init__(window)
 
-        self.background = arcade.Sprite(resource_path("assets/space-1.png"))
+        self.background = arcade.SpriteList()
+        self.bg_speed = 80 
+        self.bg_y_offset = 0
         self.update_background_size(window.width, window.height)
 
         self.player = __hero__.Player(window.width, window.height)
@@ -73,7 +75,13 @@ class Gameview(arcade.View):
         self.fade_timer = 0
         self.fade_duration = 1.0
         self.fade_effect = True
-
+        
+        for _ in range(2):
+            bg = arcade.Sprite(resource_path("assets/space-1.png"))
+            bg.center_x = self.window.width // 2
+            bg.center_y = _ * bg.height
+            self.background.append(bg)
+            
         for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(window.width, window.height))
 
@@ -100,6 +108,10 @@ class Gameview(arcade.View):
         self.bullets.clear()
         self.enemy_bullets.clear()
         self.powerups.clear()
+        
+        self.bg_speed = 80 
+        self.bg_y_offset = 0
+        self.bg_scaled_height = 0
 
         self.health_power_active = False
         self.rapid_power_active = False
@@ -125,7 +137,13 @@ class Gameview(arcade.View):
         self.fade_timer = 0
         self.fade_duration = 1.0
         self.fade_effect = True
-
+        
+        for _ in range(2):
+            bg = arcade.Sprite(resource_path("assets/space-1.png"))
+            bg.center_x = self.width // 2
+            bg.center_y = _ * bg.height
+            self.background.append(bg)
+            
         for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
 
@@ -273,7 +291,8 @@ class Gameview(arcade.View):
 
     def on_draw(self):
         self.clear()
-        arcade.draw_sprite(self.background)
+        
+        self.background.draw()
 
         for pu in self.powerups:
             pu.on_draw()
@@ -330,9 +349,16 @@ class Gameview(arcade.View):
         self.fade_alpha = int(255 * (1 - progress))
         if self.fade_timer >= self.fade_duration:
             self.fade_alpha = 0
-
+            
         self.player.update(self.width, self.height, delta_time)
-
+        
+        # Background Moving Effect
+        self.bg_y_offset -= self.bg_speed * delta_time
+        for bg in self.background:
+            bg.center_y -= self.bg_speed * delta_time
+            if bg.center_y < -bg.height // 2:
+                bg.center_y += bg.height * len(self.background)
+                
         self.powerup_timer()
         self.update_active_powerup()
 
