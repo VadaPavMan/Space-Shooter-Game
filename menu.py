@@ -64,7 +64,7 @@ class StartMenuView(arcade.View):
         self.mouse_y = 0
         
     def on_show_view(self):
-        self.background = arcade.Sprite(resource_path("assets/space-1.png"))
+        self.background = arcade.Sprite(resource_path("assets/startscreen.png"))
         self.background.center_x = self.width // 2
         self.background.center_y = self.height // 2
         self.background.alpha = 100
