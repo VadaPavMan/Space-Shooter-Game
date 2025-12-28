@@ -45,7 +45,6 @@ class Gameview(arcade.View):
         # All Powerups
         self.powerups = []
         self.powerups_target = 0.09
-        self.powerups_increase_chance = 500
         self.powerup_type = ""
         self.health_power_active = False
         self.rapid_power_active = False
@@ -477,12 +476,6 @@ class Gameview(arcade.View):
                         if int(delta_time) % 2 == 0:
                             ex, ey = hit_enemy.get_position()
                             self.powerups.append(powerups.ShieldDemo(ex, ey))
-                            if self.score >= self.powerups_increase_chance:
-                                self.powerups_target += 0.05
-                                self.powerups_increase_chance += 500
-                                print(
-                                    f"Target: {self.powerups_target}, Chance: {self.powerups_increase_chance}"
-                                )
 
                     if self.max_enemies < 26:
                         if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
