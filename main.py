@@ -27,9 +27,8 @@ class Gameview(arcade.View):
         super().__init__(window)
 
         self.background = arcade.SpriteList()
-        self.bg_speed = 80 
+        self.bg_speed = 30
         self.bg_y_offset = 0
-        self.update_background_size(window.width, window.height)
 
         self.player = __hero__.Player(window.width, window.height)
         # Mouse Cursor
@@ -76,11 +75,26 @@ class Gameview(arcade.View):
         self.fade_duration = 1.0
         self.fade_effect = True
         
-        for _ in range(2):
-            bg = arcade.Sprite(resource_path("assets/space-1.png"))
-            bg.center_x = self.window.width // 2
-            bg.center_y = _ * bg.height
-            self.background.append(bg)
+        bg_texture_1 = arcade.load_texture(resource_path("assets/space-1.png"))
+        bg_texture_2 = arcade.load_texture(resource_path("assets/space-2.png"))
+        
+
+        scale_x = self.window.width / bg_texture_1.width
+        scale_y = self.window.height / bg_texture_1.height
+        self.bg_scale = max(scale_x, scale_y)
+        
+        self.bg_height = bg_texture_1.height * self.bg_scale
+        
+        self.bg1 = arcade.Sprite(path_or_texture=bg_texture_1, scale=self.bg_scale)
+        self.bg1.center_x = self.window.width // 2
+        self.bg1.center_y = self.window.height // 2
+        
+        self.bg2 = arcade.Sprite(path_or_texture=bg_texture_2, scale=self.bg_scale)
+        self.bg2.center_x = self.window.width // 2
+        self.bg2.center_y = self.window.height // 2 + self.bg_height
+        
+        self.background.append(self.bg1)
+        self.background.append(self.bg2)
             
         for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(window.width, window.height))
@@ -88,15 +102,8 @@ class Gameview(arcade.View):
         for _ in range(5):
             self.particles.append(particles.Particle(window.width, window.height))
 
-    def update_background_size(self, width, height):
-        self.background.center_x = width // 2
-        self.background.center_y = height // 2
-        self.background.width = width
-        self.background.height = height
-
     def on_show_view(self):
         self.window.set_mouse_visible(False)
-        self.update_background_size(self.window.width, self.window.height)
         
         for particle in self.particles:
             particle.update_screen_size(self.window.width, self.window.height)
@@ -109,7 +116,7 @@ class Gameview(arcade.View):
         self.enemy_bullets.clear()
         self.powerups.clear()
         
-        self.bg_speed = 80 
+        self.bg_speed = 30
         self.bg_y_offset = 0
         self.bg_scaled_height = 0
 
@@ -138,11 +145,28 @@ class Gameview(arcade.View):
         self.fade_duration = 1.0
         self.fade_effect = True
         
-        for _ in range(2):
-            bg = arcade.Sprite(resource_path("assets/space-1.png"))
-            bg.center_x = self.width // 2
-            bg.center_y = _ * bg.height
-            self.background.append(bg)
+
+        self.background.clear()
+        
+        bg_texture_1 = arcade.load_texture(resource_path("assets/space-1.png"))
+        bg_texture_2 = arcade.load_texture(resource_path("assets/space-2.png"))
+        
+        scale_x = self.window.width / bg_texture_1.width
+        scale_y = self.window.height / bg_texture_1.height
+        self.bg_scale = max(scale_x, scale_y)
+        
+        self.bg_height = bg_texture_1.height * self.bg_scale
+        
+        self.bg1 = arcade.Sprite(path_or_texture=bg_texture_1, scale=self.bg_scale)
+        self.bg1.center_x = self.window.width // 2
+        self.bg1.center_y = self.window.height // 2
+        
+        self.bg2 = arcade.Sprite(path_or_texture=bg_texture_2, scale=self.bg_scale)
+        self.bg2.center_x = self.window.width // 2
+        self.bg2.center_y = self.window.height // 2 + self.bg_height
+        
+        self.background.append(self.bg1)
+        self.background.append(self.bg2)
             
         for _ in range(self.max_enemies):
             self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
@@ -337,7 +361,17 @@ class Gameview(arcade.View):
 
     def on_resize(self, width, height):
         super().on_resize(width, height)
-        self.update_background_size(width, height)
+        
+        if hasattr(self, 'bg1'):
+            scale_x = width / self.bg1.texture.width
+            scale_y = height / self.bg1.texture.height
+            self.bg_scale = max(scale_x, scale_y)
+            self.bg_height = self.bg1.texture.height * self.bg_scale
+            
+            self.bg1.scale = self.bg_scale
+            self.bg2.scale = self.bg_scale
+            self.bg1.center_x = width // 2
+            self.bg2.center_x = width // 2
         
         for particle in self.particles:
             particle.update_screen_size(width, height)
@@ -352,12 +386,16 @@ class Gameview(arcade.View):
             
         self.player.update(self.width, self.height, delta_time)
         
-        # Background Moving Effect
-        self.bg_y_offset -= self.bg_speed * delta_time
-        for bg in self.background:
-            bg.center_y -= self.bg_speed * delta_time
-            if bg.center_y < -bg.height // 2:
-                bg.center_y += bg.height * len(self.background)
+        move_amount = self.bg_speed * delta_time
+        
+        self.bg1.center_y -= move_amount
+        self.bg2.center_y -= move_amount
+        
+        if self.bg1.center_y + self.bg_height / 2 < 0:
+            self.bg1.center_y = self.bg2.center_y + self.bg_height
+        
+        if self.bg2.center_y + self.bg_height / 2 < 0:
+            self.bg2.center_y = self.bg1.center_y + self.bg_height
                 
         self.powerup_timer()
         self.update_active_powerup()
