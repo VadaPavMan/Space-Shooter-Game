@@ -67,6 +67,11 @@ class Gameview(arcade.View):
         self.score = 0
         self.TARGET_TO_INCREASE_ENEMIES = 200
         self.TARGET_TO_DECREASE_INTERVAL = 300
+        
+        #Sound Effects
+        explosion1 = arcade.Sound(resource_path("assets/sound/explosion-1.wav"))
+        explosion2 = arcade.Sound(resource_path("assets/sound/explosion-2.wav"))
+        self.explosion = [explosion1, explosion2]
 
         # Starting Fade Effect
         self.fade_alpha = 255
@@ -638,6 +643,8 @@ class Gameview(arcade.View):
             if enemy in self.enemies:
                 enemy.bullets.clear()
                 self.enemies.remove(enemy)
+                self.explosion_sound = random.choice(self.explosion)
+                arcade.play_sound(self.explosion_sound)
 
         # Spawn NEw Enemies
         if len(self.enemies) < self.max_enemies:

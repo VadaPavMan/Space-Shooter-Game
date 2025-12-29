@@ -63,6 +63,9 @@ class StartMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         
+        bg_start_music = arcade.Sound(resource_path("assets/sound/background_music.mp3"))
+        self.background_music = arcade.play_sound(bg_start_music)
+        
     def on_show_view(self):
         self.background = arcade.Sprite(resource_path("assets/startscreen.png"))
         self.background.center_x = self.width // 2
@@ -116,6 +119,7 @@ class StartMenuView(arcade.View):
     def on_mouse_press(self, x, y, button, modifiers):
         if self.buttons[0].is_hovered(x, y):
             self.game_view.reset_game()
+            arcade.stop_sound(self.background_music)
             self.window.show_view(self.game_view)
             
         elif self.buttons[1].is_hovered(x, y):
