@@ -63,7 +63,7 @@ class StartMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         
-        bg_start_music = arcade.Sound(resource_path("assets/sound/background_music.mp3"))
+        bg_start_music = arcade.Sound(resource_path("assets/sound/start_menu.mp3"))
         self.background_music = arcade.play_sound(bg_start_music)
         
     def on_show_view(self):
@@ -139,6 +139,8 @@ class PauseMenuView(arcade.View):
         self.is_dead = dead
         self.mouse_x = 0
         self.mouse_y = 0
+        bg_start_music = arcade.Sound(resource_path("assets/sound/pause_menu.mp3"))
+        self.background_music = arcade.play_sound(bg_start_music)
         
     def on_show_view(self):
         self.window.set_mouse_visible(True)
@@ -202,20 +204,24 @@ class PauseMenuView(arcade.View):
     
     def on_mouse_press(self, x, y, button, modifiers):
         if not self.is_dead and self.buttons[0].is_hovered(x, y):
+            arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
             
         elif self.buttons[1].is_hovered(x, y):
             self.game_view.reset_game()
+            arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
             
         elif self.buttons[2].is_hovered(x, y):
             self.game_view.reset_game()
+            arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
     
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE and not self.is_dead:
+            arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
 

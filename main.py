@@ -148,7 +148,6 @@ class Gameview(arcade.View):
         self.fade_timer = 0
         self.fade_duration = 1.0
         self.fade_effect = True
-        
 
         self.background.clear()
         
