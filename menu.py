@@ -1,11 +1,13 @@
 import config
 import arcade
-from resources import resource_path
+from resources import resource_path, load_texture_cached, load_sound_cached
 import time
 import main
 
+
 class Button:
     def __init__(self, x, y, width, height, text, color, hover_color):
+        config.config()
         self.x = x
         self.y = y
         self.width = width
@@ -58,16 +60,19 @@ class Button:
 class StartMenuView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
+        config.config()
         self.game_view = game_view
         
         self.mouse_x = 0
         self.mouse_y = 0
-        
-        bg_start_music = arcade.Sound(resource_path("assets/sound/start_menu.mp3"))
+        self.background = None
+        bg_start_music = load_sound_cached("assets/sound/start_menu.mp3")
         self.background_music = arcade.play_sound(bg_start_music)
         
     def on_show_view(self):
-        self.background = arcade.Sprite(resource_path("assets/startscreen.png"))
+        if self.background is None:
+            self.background = arcade.Sprite(load_texture_cached("assets/startscreen.png"))
+        
         self.background.center_x = self.width // 2
         self.background.center_y = self.height // 2
         self.background.alpha = 100
@@ -135,11 +140,12 @@ class StartMenuView(arcade.View):
 class PauseMenuView(arcade.View):
     def __init__(self, game_view, dead= False):
         super().__init__()
+        config.config()
         self.game_view = game_view
         self.is_dead = dead
         self.mouse_x = 0
         self.mouse_y = 0
-        bg_start_music = arcade.Sound(resource_path("assets/sound/pause_menu.mp3"))
+        bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
         self.background_music = arcade.play_sound(bg_start_music)
         
     def on_show_view(self):
@@ -229,9 +235,10 @@ class PauseMenuView(arcade.View):
 class CountdownView(arcade.View):
     def __init__(self, game_view, countdown_seconds):
         super().__init__()
+        config.config()
         self.game_view = game_view
         self.countdown_seconds = countdown_seconds
-        self.start_time = None
+        self.start_time = 0
         
     def on_show_view(self):
         self.start_time = time.time()

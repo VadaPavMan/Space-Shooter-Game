@@ -1,6 +1,6 @@
 import config
 import arcade
-from resources import resource_path
+from resources import resource_path, load_texture_cached, load_sound_cached
 import random
 import particles
 import __hero__
@@ -25,7 +25,7 @@ class Gameview(arcade.View):
 
     def __init__(self, window):
         super().__init__(window)
-
+        config.config()
         self.background = arcade.SpriteList()
         self.bg_speed = 30
         self.bg_y_offset = 0
@@ -44,6 +44,7 @@ class Gameview(arcade.View):
 
         # All Powerups
         self.powerups = []
+        self.powerups_cooldown_timer = 0
         self.powerups_target = 0.09
         self.powerup_type = ""
         self.health_power_active = False
@@ -68,9 +69,9 @@ class Gameview(arcade.View):
         self.TARGET_TO_INCREASE_ENEMIES = 200
         self.TARGET_TO_DECREASE_INTERVAL = 300
         
-        #Sound Effects
-        explosion1 = arcade.Sound(resource_path("assets/sound/explosion-1.wav"))
-        explosion2 = arcade.Sound(resource_path("assets/sound/explosion-2.wav"))
+        # Sound Effects
+        explosion1 = load_sound_cached("assets/sound/explosion-1.wav")
+        explosion2 = load_sound_cached("assets/sound/explosion-2.wav")
         self.explosion = [explosion1, explosion2]
 
         # Starting Fade Effect
@@ -79,8 +80,9 @@ class Gameview(arcade.View):
         self.fade_duration = 1.0
         self.fade_effect = True
         
-        bg_texture_1 = arcade.load_texture(resource_path("assets/space-1.png"))
-        bg_texture_2 = arcade.load_texture(resource_path("assets/space-2.png"))
+        # background textures 
+        bg_texture_1 = load_texture_cached("assets/space-1.png")
+        bg_texture_2 = load_texture_cached("assets/space-2.png")
         
 
         scale_x = self.window.width / bg_texture_1.width
@@ -151,8 +153,9 @@ class Gameview(arcade.View):
 
         self.background.clear()
         
-        bg_texture_1 = arcade.load_texture(resource_path("assets/space-1.png"))
-        bg_texture_2 = arcade.load_texture(resource_path("assets/space-2.png"))
+        # Use cached textures instead of reloading
+        bg_texture_1 = load_texture_cached("assets/space-1.png")
+        bg_texture_2 = load_texture_cached("assets/space-2.png")
         
         scale_x = self.window.width / bg_texture_1.width
         scale_y = self.window.height / bg_texture_1.height
@@ -171,8 +174,9 @@ class Gameview(arcade.View):
         self.background.append(self.bg1)
         self.background.append(self.bg2)
             
-        for _ in range(self.max_enemies):
-            self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
+        # Don't spawn enemies immediately - let them spawn naturally
+        # for _ in range(self.max_enemies):
+        #     self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
 
         for _ in range(5):
             self.particles.append(particles.Particle(self.window.width, self.window.height))
@@ -205,7 +209,7 @@ class Gameview(arcade.View):
 
         arcade.draw_text(
             current_score,
-            text_x,
+            text_x+5,
             text_y,
             text_color,
             text_size,
@@ -480,6 +484,7 @@ class Gameview(arcade.View):
                         if int(delta_time) % 2 == 0:
                             ex, ey = hit_enemy.get_position()
                             self.powerups.append(powerups.ShieldDemo(ex, ey))
+                            self.powerups_cooldown_timer = time.time()
 
                     if self.max_enemies < 26:
                         if self.score >= self.TARGET_TO_INCREASE_ENEMIES:
@@ -490,7 +495,14 @@ class Gameview(arcade.View):
         powerups_to_remove = []
         for pu in self.powerups:
             pu.on_update(delta_time)
-
+            
+            time_elapsed = time.time() - pu.spawn_time
+            if time_elapsed > 8:
+                pu.invincible = True
+            
+            if time_elapsed > 10:
+                powerups_to_remove.append(pu)
+                
             if arcade.check_for_collision(self.player.player, pu.sprite):
                 self.player.invincible = True
                 self.player.invincible_timer = 0.0
@@ -564,7 +576,7 @@ class Gameview(arcade.View):
                     print(f"Path: {pu.get_filePath()} And {ALLIN1_POWERUP}")
                 self.player.update_texture()
                 powerups_to_remove.append(pu)
-
+                
         for pu in powerups_to_remove:
             if pu in self.powerups:
                 self.powerups.remove(pu)
@@ -762,7 +774,8 @@ class Gameview(arcade.View):
         else:
             self.active_powerup_type = ""
             self.active_powerup_end_time = 0
-
+    
+            
 
 if __name__ == "__main__":
     window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, fullscreen=True, resizable=True)

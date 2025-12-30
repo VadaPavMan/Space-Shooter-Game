@@ -7,6 +7,7 @@ import random
 
 class Particle:
     def __init__(self, screen_width, screen_height):
+        config.config()
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.reset()

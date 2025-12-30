@@ -1,3 +1,4 @@
 import arcade
 
-arcade.gl.DEFAULT_FILTER = (arcade.gl.NEAREST, arcade.gl.NEAREST)
+def config():
+    arcade.gl.DEFAULT_FILTER = (arcade.gl.NEAREST, arcade.gl.NEAREST)

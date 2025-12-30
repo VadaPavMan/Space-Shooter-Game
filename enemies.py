@@ -1,7 +1,7 @@
 import config
 import arcade
 import math
-from resources import resource_path
+from resources import resource_path, load_texture_cached
 import random
 import shoot
 
@@ -9,25 +9,15 @@ import shoot
 class Enemies:
 
     def __init__(self, width, height):
-        # Textures
-        self.crab_texture = arcade.load_texture(
-            resource_path("assets/enemies_ship/enemy_crab.png")
-        )
-        self.monster_texture = arcade.load_texture(
-            resource_path("assets/enemies_ship/enemy_monster.png")
-        )
-        self.monster_high_damage_texture = arcade.load_texture(
-            resource_path("assets/enemies_ship/high_damage_enemy.png")
-        )
-        self.monster_speedshooter_texture = arcade.load_texture(
-            resource_path("assets/enemies_ship/enemy_speed_shooter.png")
-        )
-        self.big_monster_texture = arcade.load_texture(
-            resource_path("assets/enemies_ship/enemy_big_monster.png")
-        )
+        config.config()
+        # Textures 
+        self.crab_texture = load_texture_cached("assets/enemies_ship/enemy_crab.png")
+        self.monster_texture = load_texture_cached("assets/enemies_ship/enemy_monster.png")
+        self.monster_high_damage_texture = load_texture_cached("assets/enemies_ship/high_damage_enemy.png")
+        self.monster_speedshooter_texture = load_texture_cached("assets/enemies_ship/enemy_speed_shooter.png")
+        self.big_monster_texture = load_texture_cached("assets/enemies_ship/enemy_big_monster.png")
 
         check_speed_monster = False
-        # Choose Enemy To Spawn
         self.choose = random.randint(1, 10)
         self.scale = 1  # Default
         if self.choose <= 3:

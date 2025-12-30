@@ -1,6 +1,6 @@
 import config
 import arcade
-from resources import resource_path
+from resources import resource_path, load_texture_cached
 import random
 import math
 import powerups
@@ -9,28 +9,15 @@ import powerups
 class Player:
 
     def __init__(self, width, height):
+        config.config()
         self.radius = 1.5
-        self.full_health_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/ship_full.png")
-        )
-        self.health_60_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/ship_less_damage.png")
-        )
-        self.health_30_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/ship_damage.png")
-        )
-        self.health_10_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/ship_very_damage.png")
-        )
-        self.rapid_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/rapidfire.png")
-        )
-        self.dual_shooter_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/dual_shooter.png")
-        )
-        self.allin1_texture = arcade.load_texture(
-            resource_path("assets/hero_spaceship/allin1.png")
-        )
+        self.full_health_texture = load_texture_cached("assets/hero_spaceship/ship_full.png")
+        self.health_60_texture = load_texture_cached("assets/hero_spaceship/ship_less_damage.png")
+        self.health_30_texture = load_texture_cached("assets/hero_spaceship/ship_damage.png")
+        self.health_10_texture = load_texture_cached("assets/hero_spaceship/ship_very_damage.png")
+        self.rapid_texture = load_texture_cached("assets/hero_spaceship/rapidfire.png")
+        self.dual_shooter_texture = load_texture_cached("assets/hero_spaceship/dual_shooter.png")
+        self.allin1_texture = load_texture_cached("assets/hero_spaceship/allin1.png")
 
         self.player = arcade.Sprite(
             path_or_texture=self.full_health_texture, scale=self.radius

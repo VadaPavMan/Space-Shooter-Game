@@ -1,15 +1,16 @@
 import config
 import arcade
 import math
-from resources import resource_path
+from resources import resource_path, load_texture_cached
 import random
 import enemies
 
 
 class Bullet(arcade.Sprite):
     def __init__(self, angle, x, y):
+        config.config()
         self.radius = 0.26
-        self.bullet = arcade.Sprite(resource_path("assets/bullets/08.png"), self.radius)
+        self.bullet = arcade.Sprite(load_texture_cached("assets/bullets/08.png"), self.radius)
         self.bullet.center_x = x
         self.bullet.center_y = y
         self.bullet.angle = angle
@@ -35,12 +36,13 @@ class Bullet(arcade.Sprite):
 
 class Enemy_Bullet(arcade.Sprite):
     def __init__(self, angle, x, y, speed=4):
+        config.config()
         self.radius = 0.2
         angle_rad = math.radians(angle)
         forward_offset = 10
         forward_x = math.sin(angle_rad) * forward_offset
         forward_y = math.cos(angle_rad) * forward_offset
-        self.normal_bullet = arcade.load_texture(resource_path("assets/bullets/02.png"))
+        self.normal_bullet = load_texture_cached("assets/bullets/02.png")
         self.bullet = arcade.Sprite(self.normal_bullet, self.radius)
         self.bullet.center_x = x + forward_x
         self.bullet.center_y = y + forward_y
@@ -70,14 +72,13 @@ class Enemy_Bullet(arcade.Sprite):
 
 class Enemy_Bullet_High_Damage(arcade.Sprite):
     def __init__(self, angle, x, y, speed=4):
+        config.config()
         self.radius = 0.2
         angle_rad = math.radians(angle)
         forward_offset = 15
         forward_x = math.sin(angle_rad) * forward_offset
         forward_y = math.cos(angle_rad) * forward_offset
-        self.high_damage_bullet = arcade.load_texture(
-            resource_path("assets/bullets/19.png")
-        )
+        self.high_damage_bullet = load_texture_cached("assets/bullets/19.png")
         self.bullet = arcade.Sprite(self.high_damage_bullet, 0.15)
         self.bullet.center_x = x + forward_x
         self.bullet.center_y = y + forward_y
@@ -113,6 +114,7 @@ class Enemy_Bullet_High_Damage(arcade.Sprite):
 
 class Enemy_Bullet_Dual(arcade.Sprite):
     def __init__(self, angle, x, y):
+        config.config()
         self.radius = 0.1
         angle_rad = math.radians(angle)
 
@@ -168,6 +170,7 @@ class Enemy_Bullet_Dual(arcade.Sprite):
 
 class Player_Bullet_Dual(arcade.Sprite):
     def __init__(self, angle, x, y):
+        config.config()
         self.radius = 0.15
         angle_rad = math.radians(angle)
 
