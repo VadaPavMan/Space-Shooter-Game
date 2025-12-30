@@ -174,9 +174,8 @@ class Gameview(arcade.View):
         self.background.append(self.bg1)
         self.background.append(self.bg2)
             
-        # Don't spawn enemies immediately - let them spawn naturally
-        # for _ in range(self.max_enemies):
-        #     self.enemies.append(enemies.Enemies(self.window.width, self.window.height))
+        for _ in range(self.max_enemies):
+            self.enemies.append(enemies.Enemies(self.window.width+200, self.window.height+200))
 
         for _ in range(5):
             self.particles.append(particles.Particle(self.window.width, self.window.height))
