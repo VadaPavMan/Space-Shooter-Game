@@ -102,7 +102,7 @@ class StartMenuView(arcade.View):
         self.clear()
         arcade.draw_sprite(self.background)
         arcade.draw_text(
-            "SPACE SHOOTER",
+            "GALACTIC COMBAT",
             self.window.width // 2,
             self.window.height - 150,
             arcade.color.YELLOW,
@@ -294,9 +294,21 @@ class CreditTab(arcade.View):
         
         # Credits
         self.credits = [
-            # {
-            #     "label": "CREATOR:"
-            # }
+            
+            {
+                "label": "CREATOR:",
+                "author": "vadapavman",
+                "url": "https://github.com/VadaPavMan",
+                "rect": None,
+                "hovered": False
+            },
+            {
+                "label": "SHIPS ASSETS:",
+                "author": "foozlecc",
+                "url": "https://foozlecc.itch.io",
+                "rect": None,
+                "hovered": False
+            },
             {
                 "label": "BACKGROUND MUSIC CREDIT:",
                 "author": "oblidivm",
@@ -328,7 +340,7 @@ class CreditTab(arcade.View):
         arcade.draw_lrbt_rectangle_filled(
             0, self.window.width,
             0, self.window.height,
-            (0, 0, 0, 60)
+            (0, 0, 0, 100)
         )
         
         arcade.draw_text(
@@ -354,7 +366,8 @@ class CreditTab(arcade.View):
                 arcade.color.WHITE,
                 24,
                 anchor_x="center",
-                anchor_y="center"
+                anchor_y="center",
+                bold=True
             )
             
             current_y -= 35
@@ -381,20 +394,10 @@ class CreditTab(arcade.View):
                 text_height  
             )
             
-            if credit["hovered"]:
-                arcade.draw_line(
-                    self.window.width // 2 - text_width // 2,
-                    current_y - text_height // 2 - 2,
-                    self.window.width // 2 + text_width // 2,
-                    current_y - text_height // 2 - 2,
-                    arcade.color.ORANGE,
-                    2
-                )
-            
             arcade.draw_text(
                 "(click to view)",
                 self.window.width // 2,
-                current_y - 20,
+                current_y - 24,
                 arcade.color.LIGHT_GRAY,
                 11,
                 anchor_x="center",
