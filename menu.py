@@ -292,9 +292,20 @@ class CreditTab(arcade.View):
         self.background_music = arcade.play_sound(bg_start_music, loop= True)
         self.back_button = None
         
-        self.link_url = "https://opengameart.org/users/oblidivm"
-        self.link_rect = None
-        self.link_hovered = False
+        # Credits
+        self.credits = [
+            # {
+            #     "label": "CREATOR:"
+            # }
+            {
+                "label": "BACKGROUND MUSIC CREDIT:",
+                "author": "oblidivm",
+                "url": "https://opengameart.org/users/oblidivm",
+                "rect": None,
+                "hovered": False
+            }
+
+        ]
         
     def on_show_view(self):
         if self.background is None:
@@ -331,99 +342,89 @@ class CreditTab(arcade.View):
             bold=True
         )
         
-        # Credits
-        credits_text = [
-            "Background Music Credit:",
-            "oblidivm",
-            "",
-            "Background Music Link:",
-            "https://opengameart.org/users/oblidivm",
-            "",
-            "Game developed with Arcade Library",
-            "",
-            "Press ESC or click BACK TO MENU to return"
-        ]
-        
         start_y = self.window.height - 200
-        line_spacing = 40
+        line_spacing = 50
+        current_y = start_y
         
-        for i, line in enumerate(credits_text):
-            y_pos = start_y - (i * line_spacing)
+        for credit in self.credits:
+            arcade.draw_text(
+                credit["label"],
+                self.window.width // 2,
+                current_y,
+                arcade.color.WHITE,
+                24,
+                anchor_x="center",
+                anchor_y="center"
+            )
             
-            if "https://" in line:
-                color = arcade.color.ORANGE if self.link_hovered else arcade.color.YELLOW
-                size = 20
-                
-                arcade.draw_text(
-                    line,
-                    self.window.width // 2,
-                    y_pos,
-                    color,
-                    size,
-                    anchor_x="center",
-                    anchor_y="center",
-                    bold=True
-                )
-                
-                text_width = len(line) * 10
-                text_height = size
-                
-                self.link_rect = (
+            current_y -= 35
+            
+            author_color = arcade.color.ORANGE if credit["hovered"] else arcade.color.YELLOW
+            arcade.draw_text(
+                credit["author"],
+                self.window.width // 2,
+                current_y,
+                author_color,
+                22,
+                anchor_x="center",
+                anchor_y="center",
+                bold=True
+            )
+            
+            text_width = len(credit["author"]) * 12  
+            text_height = 22
+            
+            credit["rect"] = (
+                self.window.width // 2 - text_width // 2,  
+                current_y - text_height // 2,
+                text_width,  
+                text_height  
+            )
+            
+            if credit["hovered"]:
+                arcade.draw_line(
                     self.window.width // 2 - text_width // 2,
-                    y_pos - text_height // 2,
-                    text_width,  
-                    text_height  
+                    current_y - text_height // 2 - 2,
+                    self.window.width // 2 + text_width // 2,
+                    current_y - text_height // 2 - 2,
+                    arcade.color.ORANGE,
+                    2
                 )
-                
-                
-                arcade.draw_text(
-                    "(click to open)",
-                    self.window.width // 2,
-                    y_pos - 25,
-                    arcade.color.LIGHT_GRAY,
-                    12,
-                    anchor_x="center",
-                    anchor_y="center",
-                    italic=True
-                )
-                
-            elif line == "oblidivm":
-                color = arcade.color.YELLOW
-                size = 20
-                arcade.draw_text(
-                    line,
-                    self.window.width // 2,
-                    y_pos,
-                    color,
-                    size,
-                    anchor_x="center",
-                    anchor_y="center",
-                    bold=True
-                )
-            elif line in ["Background Music:", "Assets Link:", "Game developed with Arcade Library"]:
-                color = arcade.color.WHITE
-                size = 24
-                arcade.draw_text(
-                    line,
-                    self.window.width // 2,
-                    y_pos,
-                    color,
-                    size,
-                    anchor_x="center",
-                    anchor_y="center"
-                )
-            else:
-                color = arcade.color.LIGHT_GRAY
-                size = 18
-                arcade.draw_text(
-                    line,
-                    self.window.width // 2,
-                    y_pos,
-                    color,
-                    size,
-                    anchor_x="center",
-                    anchor_y="center"
-                )
+            
+            arcade.draw_text(
+                "(click to view profile)",
+                self.window.width // 2,
+                current_y - 20,
+                arcade.color.LIGHT_GRAY,
+                11,
+                anchor_x="center",
+                anchor_y="center",
+                italic=True
+            )
+            
+            current_y -= line_spacing
+        
+        current_y -= 20
+        arcade.draw_text(
+            "Game developed with Arcade Library",
+            self.window.width // 2,
+            current_y,
+            arcade.color.LIGHT_GRAY,
+            18,
+            anchor_x="center",
+            anchor_y="center"
+        )
+        
+        current_y -= 40
+        arcade.draw_text(
+            "Press ESC or click BACK TO MENU to return",
+            self.window.width // 2,
+            current_y,
+            arcade.color.LIGHT_GRAY,
+            16,
+            anchor_x="center",
+            anchor_y="center"
+        )
         
         if self.back_button:
             self.back_button.draw()
@@ -435,21 +436,23 @@ class CreditTab(arcade.View):
         if self.back_button:
             self.back_button.update_hover(x, y)
         
-        if self.link_rect:
-            left, bottom, width, height = self.link_rect
-            if (left <= x <= left + width and 
-                bottom <= y <= bottom + height):
-                self.link_hovered = True
-            else:
-                self.link_hovered = False
+        for credit in self.credits:
+            if credit["rect"]:
+                left, bottom, width, height = credit["rect"]
+                if (left <= x <= left + width and 
+                    bottom <= y <= bottom + height):
+                    credit["hovered"] = True
+                else:
+                    credit["hovered"] = False
     
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.link_rect:
-            left, bottom, width, height = self.link_rect
-            if (left <= x <= left + width and 
-                bottom <= y <= bottom + height):
-                webbrowser.open(self.link_url)
-                return
+        for credit in self.credits:
+            if credit["rect"]:
+                left, bottom, width, height = credit["rect"]
+                if (left <= x <= left + width and 
+                    bottom <= y <= bottom + height):
+                    webbrowser.open(credit["url"])
+                    return
         
         if self.back_button and self.back_button.is_hovered(x, y):
             arcade.stop_sound(self.background_music)
