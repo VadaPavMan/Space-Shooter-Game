@@ -392,7 +392,7 @@ class CreditTab(arcade.View):
                 )
             
             arcade.draw_text(
-                "(click to view profile)",
+                "(click to view)",
                 self.window.width // 2,
                 current_y - 20,
                 arcade.color.LIGHT_GRAY,
