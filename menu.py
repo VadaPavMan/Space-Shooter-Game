@@ -294,7 +294,6 @@ class CreditTab(arcade.View):
         
         # Credits
         self.credits = [
-            
             {
                 "label": "CREATOR:",
                 "author": "vadapavman",
@@ -303,14 +302,21 @@ class CreditTab(arcade.View):
                 "hovered": False
             },
             {
-                "label": "SHIPS ASSETS:",
+                "label": "SHIPS & POWERUPS ASSETS, CREDIT:",
                 "author": "foozlecc",
                 "url": "https://foozlecc.itch.io",
                 "rect": None,
                 "hovered": False
             },
             {
-                "label": "BACKGROUND MUSIC CREDIT:",
+                "label": "BACKGROUND SPACE ASSETS, CREDIT:",
+                "author": "fraang",
+                "url": "https://opengameart.org/users/fraang",
+                "rect": None,
+                "hovered": False
+            },
+            {
+                "label": "BACKGROUND MUSIC, CREDIT:",
                 "author": "oblidivm",
                 "url": "https://opengameart.org/users/oblidivm",
                 "rect": None,
@@ -353,10 +359,21 @@ class CreditTab(arcade.View):
             anchor_y="center",
             bold=True
         )
-        
+             
         start_y = self.window.height - 200
         line_spacing = 50
         current_y = start_y
+        
+        arcade.draw_text(
+                "(click on names to view)",
+                self.window.width // 2,
+                current_y + 30,
+                arcade.color.LIGHT_GRAY,
+                11,
+                anchor_x="center",
+                anchor_y="center",
+                italic=True
+            )
         
         for credit in self.credits:
             arcade.draw_text(
@@ -394,28 +411,18 @@ class CreditTab(arcade.View):
                 text_height  
             )
             
-            arcade.draw_text(
-                "(click to view)",
-                self.window.width // 2,
-                current_y - 24,
-                arcade.color.LIGHT_GRAY,
-                11,
-                anchor_x="center",
-                anchor_y="center",
-                italic=True
-            )
-            
             current_y -= line_spacing
         
         current_y -= 20
         arcade.draw_text(
-            "Game developed with Arcade Library",
+            "GAME DEVELOPED WITH ARCADE LIBRARY",
             self.window.width // 2,
             current_y,
             arcade.color.LIGHT_GRAY,
             18,
             anchor_x="center",
-            anchor_y="center"
+            anchor_y="center",
+            bold=True
         )
         
         current_y -= 40
