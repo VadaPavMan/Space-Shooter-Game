@@ -90,9 +90,9 @@ class StartMenuView(arcade.View):
             Button(center_x, start_y, button_width, button_height, 
                    "START", arcade.color.NAPIER_GREEN, arcade.color.GREEN),
             Button(center_x, start_y - button_spacing, button_width, button_height, 
-                   "LOAD", arcade.color.DARK_BLUE, arcade.color.BLUE),
-            Button(center_x, start_y - button_spacing * 2, button_width, button_height, 
                    "OPTIONS", arcade.color.DARK_BLUE, arcade.color.BLUE),
+            Button(center_x, start_y - button_spacing * 2, button_width, button_height, 
+                   "CREDITS", arcade.color.DARK_BLUE, arcade.color.BLUE),
             Button(center_x, start_y - button_spacing * 3, button_width, button_height, 
                    "EXIT", arcade.color.DARK_RED, arcade.color.RED)
         ]
@@ -128,10 +128,12 @@ class StartMenuView(arcade.View):
             self.window.show_view(self.game_view)
             
         elif self.buttons[1].is_hovered(x, y):
-            print("LOAD clicked - Feature not implemented yet")
+            print("OPTIONS clicked - Feature not implemented yet")
             
         elif self.buttons[2].is_hovered(x, y):
-            print("OPTIONS clicked - Feature not implemented yet")
+            print("CREDITS clicked")
+            credits_view = CreditTab(self.game_view)
+            self.window.show_view(credits_view)
             
         elif self.buttons[3].is_hovered(x, y):
             arcade.exit()
@@ -275,3 +277,42 @@ class CountdownView(arcade.View):
         elapsed = time.time() - self.start_time
         if elapsed >= self.countdown_seconds:
             self.window.show_view(self.game_view)
+
+class CreditTab(arcade.View):
+    def __init__(self, game_view, dead= False):
+        super().__init__()
+        config.config()
+        self.game_view = game_view
+        self.mouse_x = 0
+        self.mouse_y = 0
+        self.text = "Background Music From: oblidivm\nLink: https://opengameart.org/users/oblidivm"
+        bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
+        self.background_music = arcade.play_sound(bg_start_music)
+        
+    def on_show_view(self):
+        self.window.set_mouse_visible(True)
+        self.create_buttons()
+        
+    def on_draw(self):
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.window.width,
+            0, self.window.height,
+            (0, 0, 0, 200)
+        )
+        
+        arcade.draw_text(
+            self.text,
+            self.window.width // 2,
+            self.window.height // 2,
+            arcade.color.YELLOW,
+            50,
+            anchor_x="center",
+            anchor_y="center",
+            bold=True
+        ) 
+        
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ESCAPE:
+            arcade.stop_sound(self.background_music)
+            self.game_view.reset_game()
+            self.window.show_view(StartMenuView(self.game_view))
