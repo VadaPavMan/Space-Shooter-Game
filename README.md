@@ -22,6 +22,9 @@ This is a fun and exciting 2D Space Shooter Game developed using the Arcade libr
 - Real-time score tracking
 - Fun retro-style space theme with custom textures
 
+# Credits:
+![credits](assets/credits.png)
+
 # Tech Stack:
 - Language: Python
 - Graphics: Arcade library
