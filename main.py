@@ -45,7 +45,7 @@ class Gameview(arcade.View):
         # All Powerups
         self.powerups = []
         self.powerups_cooldown_timer = 0
-        self.powerups_target = 0.09
+        self.powerups_target = 0.9
         self.powerup_type = ""
         self.health_power_active = False
         self.rapid_power_active = False
@@ -70,10 +70,15 @@ class Gameview(arcade.View):
         self.TARGET_TO_DECREASE_INTERVAL = 300
         
         # Sound Effects
-        explosion1 = load_sound_cached("assets/sound/explosion-1.wav")
-        explosion2 = load_sound_cached("assets/sound/explosion-2.wav")
-        self.explosion = [explosion1, explosion2]
-        
+        explosion1 = load_sound_cached("assets/sound/explosion/explosion-1.wav")
+        explosion2 = load_sound_cached("assets/sound/explosion/explosion-2.wav")
+        explosion3 = load_sound_cached("assets/sound/explosion/explosion-3.wav")
+        explosion4 = load_sound_cached("assets/sound/explosion/explosion-4.wav")
+        explosion5 = load_sound_cached("assets/sound/explosion/explosion-5.wav")
+        explosion6 = load_sound_cached("assets/sound/explosion/explosion-6.wav")
+        explosion7 = load_sound_cached("assets/sound/explosion/explosion-7.wav")
+        self.explosion = [explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7]
+        self.pickup_sound = arcade.load_sound("assets/sound/pickups.mp3")
         self.music = arcade.load_sound("assets/sound/background_music.mp3")
         self.gameview_background_music = None
 
@@ -114,7 +119,7 @@ class Gameview(arcade.View):
     def on_show_view(self):
         self.window.set_mouse_visible(False)
         if self.gameview_background_music is None:
-            self.gameview_background_music = arcade.play_sound(self.music, loop=True, volume=0.1)
+            self.gameview_background_music = arcade.play_sound(self.music, loop=True, volume=0.35)
         else:
             self.gameview_background_music.play()
         for particle in self.particles:
@@ -514,6 +519,7 @@ class Gameview(arcade.View):
             if arcade.check_for_collision(self.player.player, pu.sprite):
                 self.player.invincible = True
                 self.player.invincible_timer = 0.0
+                arcade.play_sound(self.pickup_sound,loop=False, volume=0.8)
                 if HEALTH_POWERUP in pu.get_filePath():
                     self.health_power_active = True
                     self.powerup_type = pu.get_filePath()
@@ -663,7 +669,7 @@ class Gameview(arcade.View):
                 enemy.bullets.clear()
                 self.enemies.remove(enemy)
                 self.explosion_sound = random.choice(self.explosion)
-                arcade.play_sound(self.explosion_sound)
+                arcade.play_sound(self.explosion_sound, loop= False, volume=1.0)
 
         # Spawn NEw Enemies
         if len(self.enemies) < self.max_enemies:
