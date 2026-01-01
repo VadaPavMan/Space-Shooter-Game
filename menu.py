@@ -68,7 +68,10 @@ class StartMenuView(arcade.View):
         self.mouse_y = 0
         self.background = None
         bg_start_music = load_sound_cached("assets/sound/start_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop= True)
+        self.background_music = arcade.play_sound(bg_start_music, loop=True)
+        
+        if self.background_music:
+            self.background_music.volume = 0.3 
         
     def on_show_view(self):
         if self.background is None:
@@ -150,7 +153,10 @@ class PauseMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop= True)
+        self.background_music = arcade.play_sound(bg_start_music, loop=True)
+        
+        if self.background_music:
+            self.background_music.volume = 0.3  
         
     def on_show_view(self):
         self.window.set_mouse_visible(True)
@@ -289,7 +295,11 @@ class CreditTab(arcade.View):
         self.mouse_y = 0
         self.background = None
         bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop= True)
+        self.background_music = arcade.play_sound(bg_start_music, loop=True)
+        
+        if self.background_music:
+            self.background_music.volume = 0.3  
+        
         self.back_button = None
         
         # Credits

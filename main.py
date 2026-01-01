@@ -73,6 +73,9 @@ class Gameview(arcade.View):
         explosion1 = load_sound_cached("assets/sound/explosion-1.wav")
         explosion2 = load_sound_cached("assets/sound/explosion-2.wav")
         self.explosion = [explosion1, explosion2]
+        
+        self.music = arcade.load_sound("assets/sound/background_music.mp3")
+        self.gameview_background_music = None
 
         # Starting Fade Effect
         self.fade_alpha = 255
@@ -110,7 +113,10 @@ class Gameview(arcade.View):
 
     def on_show_view(self):
         self.window.set_mouse_visible(False)
-        
+        if self.gameview_background_music is None:
+            self.gameview_background_music = arcade.play_sound(self.music, loop=True, volume=0.1)
+        else:
+            self.gameview_background_music.play()
         for particle in self.particles:
             particle.update_screen_size(self.window.width, self.window.height)
 
@@ -122,6 +128,10 @@ class Gameview(arcade.View):
         self.enemy_bullets.clear()
         self.powerups.clear()
         
+        if self.gameview_background_music:
+            arcade.stop_sound(self.gameview_background_music)
+            self.gameview_background_music = None
+            
         self.bg_speed = 30
         self.bg_y_offset = 0
         self.bg_scaled_height = 0
@@ -383,7 +393,6 @@ class Gameview(arcade.View):
             particle.update_screen_size(width, height)
 
     def on_update(self, delta_time):
-        
         self.fade_timer += delta_time
         progress = self.fade_timer / self.fade_duration
         self.fade_alpha = int(255 * (1 - progress))
@@ -693,12 +702,16 @@ class Gameview(arcade.View):
         # Check Death
         is_dead = self.player.get_current_health()
         if is_dead <= 0:
+            if self.gameview_background_music:
+                self.gameview_background_music.pause()
             pause_view = menu.PauseMenuView(self, True)
             self.window.show_view(pause_view)
             
             
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
+            if self.gameview_background_music:
+                self.gameview_background_music.pause()
             pause_view = menu.PauseMenuView(self, False)
             self.window.show_view(pause_view)
         else:
