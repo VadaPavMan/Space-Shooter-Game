@@ -77,9 +77,11 @@ class Gameview(arcade.View):
         explosion5 = load_sound_cached("assets/sound/explosion/explosion-5.wav")
         explosion6 = load_sound_cached("assets/sound/explosion/explosion-6.wav")
         explosion7 = load_sound_cached("assets/sound/explosion/explosion-7.wav")
-        self.explosion = [explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7]
+        self.explosion = (explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7)
         self.pickup_sound = arcade.load_sound("assets/sound/pickups.mp3")
         self.music = arcade.load_sound("assets/sound/background_music.mp3")
+        self.fire = arcade.load_sound("assets/sound/fire.wav")
+        self.enemies_fire = arcade.load_sound("assets/sound/alienshoot1.wav")
         self.gameview_background_music = None
 
         # Starting Fade Effect
@@ -429,6 +431,7 @@ class Gameview(arcade.View):
             else:
                 new_bullet = shoot.Player_Bullet_Dual(angle, bullet_x, bullet_y)
             self.bullets.append(new_bullet)
+            arcade.play_sound(self.fire, loop=False, volume=0.5)
 
         pos_x, pos_y = self.player.get_position()
 
@@ -447,6 +450,7 @@ class Gameview(arcade.View):
             if len(enemy.bullets) > old_bullet_count:
                 new_bullets = enemy.bullets[old_bullet_count:]
                 self.enemy_bullets.extend(new_bullets)
+                arcade.play_sound(self.enemies_fire, loop=False)
 
         for bullet in self.bullets:
             bullet.update()
