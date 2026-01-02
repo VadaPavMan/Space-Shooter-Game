@@ -331,8 +331,28 @@ class CreditTab(arcade.View):
                 "url": "https://opengameart.org/users/oblidivm",
                 "rect": None,
                 "hovered": False
+            },
+            {
+                "label": "SHOOTING SFX, CREDIT:",
+                "author": "bolkmar",
+                "url": "https://freesound.org/people/bolkmar/sounds/421704/",
+                "rect": None,
+                "hovered": False
+            },
+            {
+                "label": "",
+                "author": "djfroyd",
+                "url": "https://freesound.org/people/djfroyd/sounds/348163/",
+                "rect": None,
+                "hovered": False
+            },
+            {
+                "label": "",
+                "author": "freesound_community",
+                "url": "https://pixabay.com/users/freesound_community-46691455/",
+                "rect": None,
+                "hovered": False
             }
-
         ]
         
     def on_show_view(self):
@@ -385,19 +405,23 @@ class CreditTab(arcade.View):
                 italic=True
             )
         
+        prev_label = None
         for credit in self.credits:
-            arcade.draw_text(
-                credit["label"],
-                self.window.width // 2,
-                current_y,
-                arcade.color.WHITE,
-                24,
-                anchor_x="center",
-                anchor_y="center",
-                bold=True
-            )
-            
-            current_y -= 35
+            if credit["label"] and credit["label"] != prev_label:
+                arcade.draw_text(
+                    credit["label"],
+                    self.window.width // 2,
+                    current_y,
+                    arcade.color.WHITE,
+                    24,
+                    anchor_x="center",
+                    anchor_y="center",
+                    bold=True
+                )
+                current_y -= 35
+                prev_label = credit["label"]
+            elif not credit["label"] and prev_label:
+                current_y -= 1
             
             author_color = arcade.color.ORANGE if credit["hovered"] else arcade.color.YELLOW
             arcade.draw_text(
