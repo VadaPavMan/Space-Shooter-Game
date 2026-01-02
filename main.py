@@ -89,6 +89,7 @@ class Gameview(arcade.View):
         # Enemy shooting sounds
         self.enemy_fire_normal = load_sound_cached("assets/sound/shoot/fire-enemies.wav")
         self.enemy_fire_dual = load_sound_cached("assets/sound/shoot/dual-enemies.wav")
+        self.enemy_fire_high_damage = load_sound_cached("assets/sound/shoot/high-laser.mp3")
         self.normal_en_fire = arcade.load_sound("assets/sound/shoot/fire-enemies.wav")
         self.dual_en_fire = arcade.load_sound("assets/sound/shoot/dual-enemies.wav")
         self.enemies_fire = None
@@ -468,8 +469,13 @@ class Gameview(arcade.View):
                 last_bullet = new_bullets[-1]
                 
                 if isinstance(last_bullet, shoot.Enemy_Bullet_Dual):
+                    # Big Monster 
                     arcade.play_sound(self.enemy_fire_dual, volume=0.4)
+                elif isinstance(last_bullet, shoot.Enemy_Bullet_High_Damage):
+                    # High Damage Enemy 
+                    arcade.play_sound(self.enemy_fire_high_damage, volume=0.45)
                 else:
+                    # Normal Enemies
                     arcade.play_sound(self.enemy_fire_normal, volume=0.4)
 
         for bullet in self.bullets:
