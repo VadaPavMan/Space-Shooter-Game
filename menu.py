@@ -113,11 +113,8 @@ class StartMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         self.background = None
-        bg_start_music = load_sound_cached("assets/sound/start_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop=True, volume=1.0)
-        
-        if self.background_music:
-            self.background_music.volume = 0.3 
+        self.start_menu_music = load_sound_cached("assets/sound/start_menu.mp3")
+        self.background_music = None
         
     def on_show_view(self):
         if self.background is None:
@@ -128,7 +125,12 @@ class StartMenuView(arcade.View):
         self.background.alpha = 100
         self.window.set_mouse_visible(True)
         self.create_buttons()
-    
+        
+        if hasattr(self.window, 'music_enabled') and self.window.music_enabled:
+            self.background_music = arcade.play_sound(self.start_menu_music, loop=True, volume=1.0)
+            if self.background_music:
+                self.background_music.volume = 0.3
+        
     def create_buttons(self):
         center_x = self.window.width // 2
         start_y = self.window.height // 2 + 80
@@ -173,23 +175,28 @@ class StartMenuView(arcade.View):
     
     def on_mouse_press(self, x, y, button, modifiers):
         if self.buttons[0].is_hovered(x, y):
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.game_view.reset_game()
-            arcade.stop_sound(self.background_music)
             self.window.show_view(self.game_view)
             
         elif self.buttons[1].is_hovered(x, y):
             print("OPTIONS clicked")
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             options_view = OptionsMenuView(self.game_view)
             self.window.show_view(options_view)
             
         elif self.buttons[2].is_hovered(x, y):
             print("CREDITS clicked")
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             credits_view = CreditTab(self.game_view)
             self.window.show_view(credits_view)
             
         elif self.buttons[3].is_hovered(x, y):
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             arcade.exit()
 
 
@@ -201,16 +208,8 @@ class OptionsMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         self.background = None
-        bg_options_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_options_music, loop=True, volume=1.0)
-        
-        if self.background_music:
-            self.background_music.volume = 0.3
-            
-        self.back_button = None
-        if not hasattr(self.window, 'music_enabled'):
-            self.window.music_enabled = True
-        self.music_checkbox = None
+        self.options_menu_music = load_sound_cached("assets/sound/pause_menu.mp3")
+        self.background_music = None
         
     def on_show_view(self):
         if self.background is None:
@@ -228,9 +227,14 @@ class OptionsMenuView(arcade.View):
             "BACK TO MENU", arcade.color.AMBER, arcade.color.SAE
         )
         
-        checkbox_x = center_x + 130
-        checkbox_y = self.window.height // 2 + 47
+        checkbox_x = center_x + 120  
+        checkbox_y = self.window.height // 2 + 46
         self.music_checkbox = Checkbox(checkbox_x, checkbox_y, 30, self.window.music_enabled)
+        
+        if hasattr(self.window, 'music_enabled') and self.window.music_enabled:
+            self.background_music = arcade.play_sound(self.options_menu_music, loop=True, volume=1.0)
+            if self.background_music:
+                self.background_music.volume = 0.3
     
     def on_draw(self):
         self.clear()
@@ -257,7 +261,7 @@ class OptionsMenuView(arcade.View):
         
         arcade.draw_text(
             "BACKGROUND MUSIC:",
-            center_x - 100,
+            center_x - 110,
             music_text_y,
             arcade.color.WHITE,
             28,
@@ -274,8 +278,8 @@ class OptionsMenuView(arcade.View):
             
             arcade.draw_text(
                 f"({status_text})",
-                center_x + 230,
-                music_text_y,
+                center_x + 225,
+                music_text_y - 1,
                 status_color,
                 22,
                 anchor_x="center",
@@ -285,7 +289,7 @@ class OptionsMenuView(arcade.View):
         
         instruction_y = self.window.height // 2 - 10
         arcade.draw_text(
-            "CLICK THE CHECKBOX TO TOGGLE BACKGROUND MUSIC",
+            "CLICK THE CHECKBOX TO TOGGLE ALL BACKGROUND MUSIC",
             center_x,
             instruction_y,
             arcade.color.LIGHT_GRAY,
@@ -312,41 +316,48 @@ class OptionsMenuView(arcade.View):
             if not self.music_checkbox.checked:
                 if self.background_music:
                     arcade.stop_sound(self.background_music)
+                    self.background_music = None
             else:
-                if not self.background_music.playing:
-                    self.background_music.play()
+                if not self.background_music:
+                    self.background_music = arcade.play_sound(self.options_menu_music, loop=True, volume=1.0)
+                    if self.background_music:
+                        self.background_music.volume = 0.3
                     
             print(f"Background music: {'ENABLED' if self.music_checkbox.checked else 'DISABLED'}")
             return
         
         if self.back_button and self.back_button.is_hovered(x, y):
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
     
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
 
 
 class PauseMenuView(arcade.View):
-    def __init__(self, game_view, dead= False):
+    def __init__(self, game_view, dead=False):
         super().__init__()
         config.config()
         self.game_view = game_view
         self.is_dead = dead
         self.mouse_x = 0
         self.mouse_y = 0
-        bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop=True, volume=1.0)
-        
-        if self.background_music:
-            self.background_music.volume = 0.3  
+        self.pause_menu_music = load_sound_cached("assets/sound/pause_menu.mp3")
+        self.background_music = None
         
     def on_show_view(self):
         self.window.set_mouse_visible(True)
         self.create_buttons()
-    
+        
+        if hasattr(self.window, 'music_enabled') and self.window.music_enabled:
+            self.background_music = arcade.play_sound(self.pause_menu_music, loop=True, volume=1.0)
+            if self.background_music:
+                self.background_music.volume = 0.3
+        
     def create_buttons(self):
         center_x = self.window.width // 2
         button_width = 250
@@ -405,24 +416,28 @@ class PauseMenuView(arcade.View):
     
     def on_mouse_press(self, x, y, button, modifiers):
         if not self.is_dead and self.buttons[0].is_hovered(x, y):
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
             
         elif self.buttons[1].is_hovered(x, y):
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.game_view.reset_game()
-            arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
             
         elif self.buttons[2].is_hovered(x, y):
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.game_view.reset_game()
-            arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
     
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE and not self.is_dead:
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             countdown_view = CountdownView(self.game_view, 3)
             self.window.show_view(countdown_view)
 
@@ -480,11 +495,8 @@ class CreditTab(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         self.background = None
-        bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop=True)
-        
-        if self.background_music:
-            self.background_music.volume = 0.3  
+        self.credits_music = load_sound_cached("assets/sound/pause_menu.mp3")
+        self.background_music = None
         
         self.back_button = None
         
@@ -555,6 +567,11 @@ class CreditTab(arcade.View):
             center_x, button_y, 250, 60,
             "BACK TO MENU", arcade.color.AMBER, arcade.color.SAE
         )
+        
+        if hasattr(self.window, 'music_enabled') and self.window.music_enabled:
+            self.background_music = arcade.play_sound(self.credits_music, loop=True, volume=1.0)
+            if self.background_music:
+                self.background_music.volume = 0.3
         
     def on_draw(self):
         self.clear()
@@ -685,10 +702,12 @@ class CreditTab(arcade.View):
                     return
         
         if self.back_button and self.back_button.is_hovered(x, y):
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
         
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
-            arcade.stop_sound(self.background_music)
+            if self.background_music:
+                arcade.stop_sound(self.background_music)
             self.window.show_view(StartMenuView(self.game_view))
