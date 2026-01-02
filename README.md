@@ -1,6 +1,7 @@
 # 🚀 Galactic Combat
- A Game Made Using Arcade Library
 [![logo](assets/arcade.webp)](https://api.arcade.academy/en/stable/)
+
+ **A Game Made Using Arcade Library**
 
 This is a fun and exciting 2D Space Shooter Game developed using the Arcade library in Python. Players control a spaceship, navigating through space while dodging obstacles and shooting enemies to score points.
 
