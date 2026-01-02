@@ -68,7 +68,7 @@ class StartMenuView(arcade.View):
         self.mouse_y = 0
         self.background = None
         bg_start_music = load_sound_cached("assets/sound/start_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop=True)
+        self.background_music = arcade.play_sound(bg_start_music, loop=True, volume=1.0)
         
         if self.background_music:
             self.background_music.volume = 0.3 
@@ -153,7 +153,7 @@ class PauseMenuView(arcade.View):
         self.mouse_x = 0
         self.mouse_y = 0
         bg_start_music = load_sound_cached("assets/sound/pause_menu.mp3")
-        self.background_music = arcade.play_sound(bg_start_music, loop=True)
+        self.background_music = arcade.play_sound(bg_start_music, loop=True, volume=1.0)
         
         if self.background_music:
             self.background_music.volume = 0.3  

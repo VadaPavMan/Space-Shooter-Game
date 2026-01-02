@@ -80,8 +80,10 @@ class Gameview(arcade.View):
         self.explosion = (explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7)
         self.pickup_sound = arcade.load_sound("assets/sound/pickups.mp3")
         self.music = arcade.load_sound("assets/sound/background_music.mp3")
-        self.fire = arcade.load_sound("assets/sound/fire.wav")
-        self.enemies_fire = arcade.load_sound("assets/sound/alienshoot1.wav")
+        self.fire_normal = arcade.load_sound("assets/sound/shoot/fire-normal.wav")
+        self.fire_dual = arcade.load_sound("assets/sound/shoot/fire-normal.wav")
+        self.fire = None
+        self.enemies_fire = arcade.load_sound("assets/sound/shoot/fire-enemies.wav")
         self.gameview_background_music = None
 
         # Starting Fade Effect
@@ -428,10 +430,12 @@ class Gameview(arcade.View):
             angle = self.player.get_angle()
             if not (self.dual_shoot_powerup):
                 new_bullet = shoot.Bullet(angle, bullet_x, bullet_y)
+                self.fire = self.fire_normal
             else:
                 new_bullet = shoot.Player_Bullet_Dual(angle, bullet_x, bullet_y)
+                self.fire = self.fire_dual
             self.bullets.append(new_bullet)
-            arcade.play_sound(self.fire, loop=False, volume=0.5)
+            arcade.play_sound(self.fire, loop=False, volume=0.6)
 
         pos_x, pos_y = self.player.get_position()
 
@@ -450,7 +454,7 @@ class Gameview(arcade.View):
             if len(enemy.bullets) > old_bullet_count:
                 new_bullets = enemy.bullets[old_bullet_count:]
                 self.enemy_bullets.extend(new_bullets)
-                arcade.play_sound(self.enemies_fire, loop=False)
+                arcade.play_sound(self.enemies_fire, loop=False, volume=0.6)
 
         for bullet in self.bullets:
             bullet.update()
@@ -673,7 +677,7 @@ class Gameview(arcade.View):
                 enemy.bullets.clear()
                 self.enemies.remove(enemy)
                 self.explosion_sound = random.choice(self.explosion)
-                arcade.play_sound(self.explosion_sound, loop= False, volume=1.0)
+                arcade.play_sound(self.explosion_sound, loop=False, volume=1.0)
 
         # Spawn NEw Enemies
         if len(self.enemies) < self.max_enemies:
