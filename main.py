@@ -9,6 +9,7 @@ import enemies
 import powerups
 import time
 import menu
+import particle_effects
 
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
@@ -41,11 +42,14 @@ class Gameview(arcade.View):
         self.particles = []
         self.bullets = []
         self.enemy_bullets = []
+        
+        # Particle effects system
+        self.particle_system = particle_effects.ParticleSystem()
 
         # All Powerups
         self.powerups = []
         self.powerups_cooldown_timer = 0
-        self.powerups_target = 0.9
+        self.powerups_target = 0.09
         self.powerup_type = ""
         self.health_power_active = False
         self.rapid_power_active = False
@@ -359,6 +363,9 @@ class Gameview(arcade.View):
 
         for particle in self.particles:
             particle.draw()
+        
+        # Draw particle effects (engine flames, hits, explosions)
+        self.particle_system.draw()
 
         for bullet in self.bullets:
             bullet.draw()
@@ -421,6 +428,13 @@ class Gameview(arcade.View):
             
         self.player.update(self.width, self.height, delta_time)
         
+        # Create engine flames for player when moving
+        if (self.player.left_pressed or self.player.right_pressed or 
+            self.player.up_pressed or self.player.down_pressed):
+            px, py = self.player.get_position()
+            player_angle = self.player.get_angle()
+            self.particle_system.create_engine_flame(px, py, player_angle, is_player=True, count=2)
+        
         move_amount = self.bg_speed * delta_time
         
         self.bg1.center_y -= move_amount
@@ -461,6 +475,12 @@ class Gameview(arcade.View):
                 self.height + 50,
                 self.enemies,
             )
+            
+            # Create engine flames for enemies
+            if not enemy.just_spawned:
+                ex, ey = enemy.get_position()
+                enemy_angle = enemy.get_angle()
+                self.particle_system.create_engine_flame(ex, ey, enemy_angle, is_player=False, count=1)
 
             if len(enemy.bullets) > old_bullet_count:
                 new_bullets = enemy.bullets[old_bullet_count:]
@@ -519,10 +539,17 @@ class Gameview(arcade.View):
                     isinstance(bullet, shoot.Player_Bullet_Dual)
                 )
 
+                # Create hit effect
+                hit_x, hit_y = hit_enemy.get_position()
+                self.particle_system.create_hit_effect(hit_x, hit_y, is_player=False, count=6)
+
                 if is_dead:
                     enemies_to_remove.append(hit_enemy)
                     self.score += 10
                     print(f"Score: {self.score}")
+                    
+                    # Create explosion effect for destroyed enemy
+                    self.particle_system.create_explosion(hit_x, hit_y, is_player=False)
 
                     if random.random() <= self.powerups_target:
                         if int(delta_time) % 2 == 0:
@@ -645,6 +672,10 @@ class Gameview(arcade.View):
                         player_died = self.player.take_damage(20)
                     enemy_bullets_to_remove.append(enemy_bullet)
                     self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
+                    
+                    # Create hit effect on player
+                    px, py = self.player.get_position()
+                    self.particle_system.create_hit_effect(px, py, is_player=True, count=8)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -658,6 +689,10 @@ class Gameview(arcade.View):
                         player_died = self.player.take_damage(10)
                     enemy_bullets_to_remove.append(enemy_bullet)
                     self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
+                    
+                    # Create hit effect on player
+                    px, py = self.player.get_position()
+                    self.particle_system.create_hit_effect(px, py, is_player=True, count=6)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -670,6 +705,10 @@ class Gameview(arcade.View):
                         player_died = self.player.take_damage(50)
                     enemy_bullets_to_remove.append(enemy_bullet)
                     self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
+                    
+                    # Create bigger hit effect for high damage
+                    px, py = self.player.get_position()
+                    self.particle_system.create_hit_effect(px, py, is_player=True, count=12)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -737,12 +776,19 @@ class Gameview(arcade.View):
         for particle in self.particles:
             particle.update()
         
+        # Update particle effects system
+        self.particle_system.update(delta_time)
+        
         self.is_dead(delta_time)
         
     def is_dead(self, delta_time):
         # Check Death
         is_dead = self.player.get_current_health()
         if is_dead <= 0:
+            # Create large explosion for player death
+            px, py = self.player.get_position()
+            self.particle_system.create_explosion(px, py, is_player=True)
+            
             if self.gameview_background_music:
                 self.gameview_background_music.pause()
             pause_view = menu.PauseMenuView(self, True)
