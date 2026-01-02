@@ -30,6 +30,9 @@ class Gameview(arcade.View):
         self.background = arcade.SpriteList()
         self.bg_speed = 30
         self.bg_y_offset = 0
+        
+        if not hasattr(self.window, 'music_enabled'):
+            self.window.music_enabled = True
 
         self.player = __hero__.Player(window.width, window.height)
         # Mouse Cursor
@@ -137,10 +140,16 @@ class Gameview(arcade.View):
 
     def on_show_view(self):
         self.window.set_mouse_visible(False)
-        if self.gameview_background_music is None:
-            self.gameview_background_music = arcade.play_sound(self.music, loop=True, volume=0.35)
+        
+        if self.window.music_enabled:
+            if self.gameview_background_music is None:
+                self.gameview_background_music = arcade.play_sound(self.music, loop=True, volume=0.35)
+            elif not self.gameview_background_music.playing:
+                self.gameview_background_music.play()
         else:
-            self.gameview_background_music.play()
+            if self.gameview_background_music and self.gameview_background_music.playing:
+                self.gameview_background_music.stop()
+                
         for particle in self.particles:
             particle.update_screen_size(self.window.width, self.window.height)
 
@@ -493,7 +502,7 @@ class Gameview(arcade.View):
                     arcade.play_sound(self.enemy_fire_dual, volume=0.4)
                 elif isinstance(last_bullet, shoot.Enemy_Bullet_High_Damage):
                     # High Damage Enemy 
-                    arcade.play_sound(self.enemy_fire_high_damage, volume=0.45)
+                    arcade.play_sound(self.enemy_fire_high_damage, volume=0.33)
                 else:
                     # Normal Enemies
                     arcade.play_sound(self.enemy_fire_normal, volume=0.4)
@@ -878,6 +887,7 @@ class Gameview(arcade.View):
 
 if __name__ == "__main__":
     window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, fullscreen=True, resizable=True)
+    window.music_enabled = True
     game_view = Gameview(window)
     start_menu = menu.StartMenuView(game_view)
     window.show_view(start_menu)
