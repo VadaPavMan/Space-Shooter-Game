@@ -3,6 +3,11 @@
 .env
 env/
 __pycache__/
+*.__pycache__
+.__pycache__
+..te.
+*..te.
+.te./
 # Prerequisites
 *.d
 

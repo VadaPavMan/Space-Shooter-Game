@@ -200,7 +200,7 @@ class Player:
 
     def rapidfire(self, num):
         if num:
-            self.shoot_cooldown = 0.05
+            self.shoot_cooldown = 0.1
         else:
             self.shoot_cooldown = 0.2
             self.player.update()

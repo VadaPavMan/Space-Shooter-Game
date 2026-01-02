@@ -80,11 +80,21 @@ class Gameview(arcade.View):
         self.explosion = (explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7)
         self.pickup_sound = arcade.load_sound("assets/sound/pickups.mp3")
         self.music = arcade.load_sound("assets/sound/background_music.mp3")
+        
+        # Player shooting sounds
         self.fire_normal = arcade.load_sound("assets/sound/shoot/fire-normal.wav")
-        self.fire_dual = arcade.load_sound("assets/sound/shoot/fire-normal.wav")
+        self.fire_dual = arcade.load_sound("assets/sound/shoot/fire-dual.wav")
         self.fire = None
-        self.enemies_fire = arcade.load_sound("assets/sound/shoot/fire-enemies.wav")
+        
+        # Enemy shooting sounds
+        self.enemy_fire_normal = load_sound_cached("assets/sound/shoot/fire-enemies.wav")
+        self.enemy_fire_dual = load_sound_cached("assets/sound/shoot/dual-enemies.wav")
+        self.normal_en_fire = arcade.load_sound("assets/sound/shoot/fire-enemies.wav")
+        self.dual_en_fire = arcade.load_sound("assets/sound/shoot/dual-enemies.wav")
+        self.enemies_fire = None
         self.gameview_background_music = None
+        self.hit = arcade.load_sound("assets/sound/hit.wav")
+        self.hit_sound = None
 
         # Starting Fade Effect
         self.fade_alpha = 255
@@ -454,7 +464,13 @@ class Gameview(arcade.View):
             if len(enemy.bullets) > old_bullet_count:
                 new_bullets = enemy.bullets[old_bullet_count:]
                 self.enemy_bullets.extend(new_bullets)
-                arcade.play_sound(self.enemies_fire, loop=False, volume=0.6)
+                
+                last_bullet = new_bullets[-1]
+                
+                if isinstance(last_bullet, shoot.Enemy_Bullet_Dual):
+                    arcade.play_sound(self.enemy_fire_dual, volume=0.4)
+                else:
+                    arcade.play_sound(self.enemy_fire_normal, volume=0.4)
 
         for bullet in self.bullets:
             bullet.update()
@@ -491,6 +507,7 @@ class Gameview(arcade.View):
 
             if hit_enemy:
                 bullets_to_remove.append(bullet)
+                self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
 
                 is_dead = hit_enemy.take_damage(
                     isinstance(bullet, shoot.Player_Bullet_Dual)
@@ -621,6 +638,7 @@ class Gameview(arcade.View):
                     else:
                         player_died = self.player.take_damage(20)
                     enemy_bullets_to_remove.append(enemy_bullet)
+                    self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -633,6 +651,7 @@ class Gameview(arcade.View):
                     else:
                         player_died = self.player.take_damage(10)
                     enemy_bullets_to_remove.append(enemy_bullet)
+                    self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -644,6 +663,7 @@ class Gameview(arcade.View):
                     else:
                         player_died = self.player.take_damage(50)
                     enemy_bullets_to_remove.append(enemy_bullet)
+                    self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
 
                     if player_died:
                         print("Game Over! Player died!")
@@ -663,6 +683,7 @@ class Gameview(arcade.View):
                     print("Game Over! Player died!")
 
                 enemies_to_remove.append(enemy)
+                self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
 
         for bullet in bullets_to_remove:
             if bullet in self.bullets:
@@ -684,7 +705,7 @@ class Gameview(arcade.View):
             self.spawn_timer += delta_time
             if self.spawn_timer >= self.spawn_interval:
                 self.enemies.append(
-                    enemies.Enemies(self.width + 300, self.height + 300)
+                    enemies.Enemies(width=(self.width+300),height=(self.height+300))
                 )
 
                 # Increase Difficulty
