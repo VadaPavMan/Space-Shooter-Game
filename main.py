@@ -85,23 +85,23 @@ class Gameview(arcade.View):
         explosion6 = load_sound_cached("assets/sound/explosion/explosion-6.wav")
         explosion7 = load_sound_cached("assets/sound/explosion/explosion-7.wav")
         self.explosion = (explosion1, explosion2, explosion3, explosion4, explosion5, explosion6, explosion7)
-        self.pickup_sound = arcade.load_sound("assets/sound/pickups.mp3")
-        self.music = arcade.load_sound("assets/sound/background_music.mp3")
+        self.pickup_sound = arcade.load_sound(resource_path("assets/sound/pickups.mp3"))
+        self.music = arcade.load_sound(resource_path("assets/sound/background_music.mp3"))
         
         # Player shooting sounds
-        self.fire_normal = arcade.load_sound("assets/sound/shoot/fire-normal.wav")
-        self.fire_dual = arcade.load_sound("assets/sound/shoot/fire-dual.wav")
+        self.fire_normal = arcade.load_sound(resource_path("assets/sound/shoot/fire-normal.wav"))
+        self.fire_dual = arcade.load_sound(resource_path("assets/sound/shoot/fire-dual.wav"))
         self.fire = None
         
         # Enemy shooting sounds
         self.enemy_fire_normal = load_sound_cached("assets/sound/shoot/fire-enemies.wav")
         self.enemy_fire_dual = load_sound_cached("assets/sound/shoot/dual-enemies.wav")
         self.enemy_fire_high_damage = load_sound_cached("assets/sound/shoot/high-laser.mp3")
-        self.normal_en_fire = arcade.load_sound("assets/sound/shoot/fire-enemies.wav")
-        self.dual_en_fire = arcade.load_sound("assets/sound/shoot/dual-enemies.wav")
+        self.normal_en_fire = arcade.load_sound(resource_path("assets/sound/shoot/fire-enemies.wav"))
+        self.dual_en_fire = arcade.load_sound(resource_path("assets/sound/shoot/dual-enemies.wav"))
         self.enemies_fire = None
         self.gameview_background_music = None
-        self.hit = arcade.load_sound("assets/sound/hit.wav")
+        self.hit = arcade.load_sound(resource_path("assets/sound/hit.wav"))
         self.hit_sound = None
 
         # Starting Fade Effect
@@ -712,7 +712,6 @@ class Gameview(arcade.View):
                     enemy_bullets_to_remove.append(enemy_bullet)
                     self.hit_sound = arcade.play_sound(self.hit, loop=False, volume=1.0)
                     
-                    # Create bigger hit effect for high damage
                     px, py = self.player.get_position()
                     self.particle_system.create_hit_effect(px, py, is_player=True, count=12)
 

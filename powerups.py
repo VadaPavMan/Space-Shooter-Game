@@ -2,17 +2,18 @@ import config
 import arcade
 import random
 import time
+from resources import resource_path
 
 class ShieldDemo(arcade.Sprite):
     def __init__(self, x, y):
         config.config()
         choose = random.randint(1, 10)
-        health_texture = "assets/powerups/health.png"
-        dual_shooter_texture = "assets/powerups/dual_shooter.png"
+        health_texture = resource_path("assets/powerups/health.png")
+        dual_shooter_texture = resource_path("assets/powerups/dual_shooter.png")
 
-        shield_texture = "assets/powerups/shield.png"
-        laser_texture = "assets/powerups/laser.png"
-        allinone_texture = "assets/powerups/max.png"
+        shield_texture = resource_path("assets/powerups/shield.png")
+        laser_texture = resource_path("assets/powerups/laser.png")
+        allinone_texture = resource_path("assets/powerups/max.png")
 
         regular_powerups = [health_texture, shield_texture]
         strong_powerups = [shield_texture, laser_texture, dual_shooter_texture]

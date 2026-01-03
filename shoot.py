@@ -129,12 +129,12 @@ class Enemy_Bullet_Dual(arcade.Sprite):
         perp_x = math.sin(perpendicular_angle_rad) * gun_offset
         perp_y = math.cos(perpendicular_angle_rad) * gun_offset
 
-        self.bullet_right = arcade.Sprite("assets/bullets/14.png", self.radius)
+        self.bullet_right = arcade.Sprite(resource_path("assets/bullets/14.png"), self.radius)
         self.bullet_right.center_x = x + perp_x + forward_x
         self.bullet_right.center_y = y + perp_y + forward_y
         self.bullet_right.angle = angle
 
-        self.bullet_left = arcade.Sprite("assets/bullets/14.png", self.radius)
+        self.bullet_left = arcade.Sprite(resource_path("assets/bullets/14.png"), self.radius)
         self.bullet_left.center_x = x - perp_x + forward_x
         self.bullet_left.center_y = y - perp_y + forward_y
         self.bullet_left.angle = angle
@@ -185,12 +185,12 @@ class Player_Bullet_Dual(arcade.Sprite):
         perp_x = math.sin(perpendicular_angle_rad) * gun_offset
         perp_y = math.cos(perpendicular_angle_rad) * gun_offset
 
-        self.bullet_right = arcade.Sprite("assets/bullets/18.png", self.radius)
+        self.bullet_right = arcade.Sprite(resource_path("assets/bullets/18.png"), self.radius)
         self.bullet_right.center_x = x + perp_x + forward_x
         self.bullet_right.center_y = y + perp_y + forward_y
         self.bullet_right.angle = angle
 
-        self.bullet_left = arcade.Sprite("assets/bullets/18.png", self.radius)
+        self.bullet_left = arcade.Sprite(resource_path("assets/bullets/18.png"), self.radius)
         self.bullet_left.center_x = x - perp_x + forward_x
         self.bullet_left.center_y = y - perp_y + forward_y
         self.bullet_left.angle = angle

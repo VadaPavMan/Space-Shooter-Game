@@ -2,12 +2,24 @@
 *.env
 .env
 env/
+
 __pycache__/
 *.__pycache__
 .__pycache__
+
 ..te.
 *..te.
 .te./
+
+main.spec
+
+*.build
+.build
+build/
+
+*.dist
+.dist
+dist/
 # Prerequisites
 *.d
 
