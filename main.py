@@ -881,6 +881,13 @@ class Gameview(arcade.View):
             
 if __name__ == "__main__":
     window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, fullscreen=True, resizable=True)
+    
+    try:
+        icon_path = resource_path("assets/image.ico")
+        window.set_icon_from_file(icon_path)
+    except Exception as e:
+        print(f"Could not load icon: {e}")
+    
     window.music_enabled = True
     game_view = Gameview(window)
     start_menu = menu.StartMenuView(game_view)

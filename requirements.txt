@@ -8,3 +8,4 @@ pyglet==2.1.11
 pymunk==6.9.0
 pytiled_parser==2.2.9
 typing_extensions==4.15.0
+pygbag==0.9.2
