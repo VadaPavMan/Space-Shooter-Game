@@ -436,7 +436,6 @@ class Gameview(arcade.View):
             
         self.player.update(self.width, self.height, delta_time)
         
-        # engine flames for player 
         if (self.player.left_pressed or self.player.right_pressed or 
             self.player.up_pressed or self.player.down_pressed):
             px, py = self.player.get_position()
@@ -547,7 +546,7 @@ class Gameview(arcade.View):
                     isinstance(bullet, shoot.Player_Bullet_Dual)
                 )
 
-                # Create hit effect
+                # hit effect
                 hit_x, hit_y = hit_enemy.get_position()
                 self.particle_system.create_hit_effect(hit_x, hit_y, is_player=False, count=6)
 
@@ -556,7 +555,6 @@ class Gameview(arcade.View):
                     self.score += 10
                     print(f"Score: {self.score}")
                     
-                    # Create explosion effect for destroyed enemy
                     self.particle_system.create_explosion(hit_x, hit_y, is_player=False)
 
                     if random.random() <= self.powerups_target:

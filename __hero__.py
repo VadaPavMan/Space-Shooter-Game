@@ -111,7 +111,6 @@ class Player:
         self.player.update()
 
     def update_texture(self):
-
         new_texture = self.full_health_texture
         if self.current_health <= 10:
             new_texture = self.health_10_texture
@@ -119,9 +118,12 @@ class Player:
             new_texture = self.health_30_texture
         elif self.current_health <= 60:
             new_texture = self.health_60_texture
-
-        if self.player.texture != new_texture:
-            self.player.texture = new_texture
+        
+        if new_texture and hasattr(new_texture, 'image') and self.player.texture != new_texture:
+            try:
+                self.player.texture = new_texture
+            except Exception as e:
+                print(f"Warning: Could not update player texture: {e}")
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.UP or key == arcade.key.W:
