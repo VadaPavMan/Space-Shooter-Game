@@ -6,7 +6,7 @@
 This is a fun and exciting 2D Space Shooter Game developed using the Arcade library in Python. Players control a spaceship, navigating through space while dodging obstacles and shooting enemies to score points.
 
 
-![imgC](assets/image.png)
+![img](assets/image.png)
 
 # Stable Version 1.0:
 - Scoring System
